@@ -2,6 +2,8 @@
 
 This is a professional Node.js + Express backend stack designed for a cargo/logistics platform with third-party integrations, background jobs, and event-driven flows.
 
+**Package Manager:** pnpm (fast, disk-efficient)
+
 ## Stack
 
 - **Runtime**: Node.js + TypeScript
@@ -146,12 +148,13 @@ backend/
 - Node.js 18+
 - PostgreSQL 14+
 - Redis 6+
+- pnpm 9.0+ (install globally: `npm install -g pnpm`)
 
 ### 2. Install Dependencies
 
 ```bash
 cd backend
-npm install
+pnpm install
 ```
 
 ### 3. Environment Setup
@@ -189,26 +192,59 @@ DHL_API_KEY=...
 
 **Run migrations:**
 ```bash
-npm run migration:run
+pnpm migration:run
 ```
 
 **Create a new migration:**
 ```bash
-npm run migration:generate -- -n CreateUsersTable
+pnpm migration:generate -- -n CreateUsersTable
 ```
 
 **Revert last migration:**
 ```bash
-npm run migration:revert
+pnpm migration:revert
 ```
 
 ### 5. Seed Database (Optional)
 
 ```bash
-npm run seed
+pnpm seed
 ```
 
 Seeders are **idempotent** — they track which seeders have run and skip them on subsequent runs. Seeder metadata is stored in the `typeorm_seeders` table.
+
+---
+
+## pnpm Best Practices
+
+**Install pnpm globally:**
+```bash
+npm install -g pnpm
+```
+
+**Benefits of pnpm:**
+- ✅ **Fast** — Uses content-addressable store & hard links
+- ✅ **Disk efficient** — 3x less disk space than npm/yarn
+- ✅ **Strict** — Enforces peer dependencies correctly
+- ✅ **Workspace-ready** — Built-in monorepo support
+
+**Common pnpm commands:**
+```bash
+pnpm install              # Install dependencies (auto-creates pnpm-lock.yaml)
+pnpm add <package>        # Add new dependency
+pnpm add -D <package>     # Add dev dependency
+pnpm remove <package>     # Remove dependency
+pnpm update               # Update all dependencies
+pnpm outdated             # Check for outdated packages
+pnpm exec <command>       # Run command with proper node_modules resolution
+```
+
+**Configuration (.npmrc):**
+```
+shamefully-hoist=false    # Strict node_modules layout
+strict-peer-dependencies=false  # Allow optional peer deps
+node-linker=node-modules  # Use traditional node_modules (not other linkers)
+```
 
 ---
 
@@ -217,7 +253,7 @@ Seeders are **idempotent** — they track which seeders have run and skip them o
 ### Development (API Server)
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Server starts on `http://localhost:3000`  
@@ -231,7 +267,7 @@ curl http://localhost:3000/health
 ### Background Workers (In Separate Process)
 
 ```bash
-npm run worker
+pnpm worker
 ```
 
 This runs the standalone worker process that processes jobs from BullMQ queues:
@@ -245,35 +281,35 @@ In production, run the worker as a separate service/container.
 ### Production Build
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 Outputs compiled code to `dist/` directory.
 
 ---
 
-## Available NPM Scripts
+## Available pnpm Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `npm run dev` | Start dev server with auto-reload |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm start` | Run production build |
-| `npm run worker` | Start background job worker |
-| `npm run seed` | Run database seeders (idempotent) |
-| `npm run migration:run` | Run pending migrations |
-| `npm run migration:revert` | Revert last migration |
-| `npm run migration:generate` | Generate new migration from entity changes |
-| `npm run migration:show` | Show pending migrations |
-| `npm test` | Run all tests |
-| `npm run test:unit` | Run unit tests only |
-| `npm run test:integration` | Run integration tests only |
-| `npm run test:e2e` | Run e2e tests only |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run lint` | Check code with ESLint |
-| `npm run lint:fix` | Auto-fix linting issues |
-| `npm run typecheck` | Type-check without emitting (fast) |
+| `pnpm dev` | Start dev server with auto-reload |
+| `pnpm build` | Compile TypeScript to `dist/` |
+| `pnpm start` | Run production build |
+| `pnpm worker` | Start background job worker |
+| `pnpm seed` | Run database seeders (idempotent) |
+| `pnpm migration:run` | Run pending migrations |
+| `pnpm migration:revert` | Revert last migration |
+| `pnpm migration:generate` | Generate new migration from entity changes |
+| `pnpm migration:show` | Show pending migrations |
+| `pnpm test` | Run all tests |
+| `pnpm test:unit` | Run unit tests only |
+| `pnpm test:integration` | Run integration tests only |
+| `pnpm test:e2e` | Run e2e tests only |
+| `pnpm test:coverage` | Run tests with coverage report |
+| `pnpm lint` | Check code with ESLint |
+| `pnpm lint:fix` | Auto-fix linting issues |
+| `pnpm typecheck` | Type-check without emitting (fast) |
 
 ---
 
@@ -281,16 +317,16 @@ Outputs compiled code to `dist/` directory.
 
 ### Database Migrations & Seeders
 
-**Migrations** track schema changes over time. Create a new migration:
+**Run migrations:**
 
 ```bash
-npm run migration:generate -- -n AddStatusToShipments
+pnpm migration:run
 ```
 
-This generates a new file in `src/database/migrations/` that you edit and then run:
+**Create a new migration:**
 
 ```bash
-npm run migration:run
+pnpm migration:generate -- -n AddStatusToShipments
 ```
 
 **Seeders** populate initial/reference data idempotently. Create a new seeder in `src/database/seeders/` and register it in `src/database/seeders/index.ts`:
@@ -472,9 +508,9 @@ describe('ShipmentService', () => {
 ### Run Tests
 
 ```bash
-npm test                 # All tests
-npm run test:unit       # Unit tests only
-npm run test:coverage   # With coverage report
+pnpm test                 # All tests
+pnpm test:unit           # Unit tests only
+pnpm test:coverage       # With coverage report
 ```
 
 Database setup/teardown is handled in `tests/setup.ts`.
@@ -519,7 +555,7 @@ Request → Middleware → Controller → Service → Database
 
 **"Cannot find module" errors:**
 - Check that TypeScript paths in `tsconfig.json` match your folder names
-- Run `npm run typecheck` to validate
+- Run `pnpm typecheck` to validate
 
 **Database migrations failed:**
 - Ensure PostgreSQL is running
@@ -532,7 +568,7 @@ Request → Middleware → Controller → Service → Database
 - Verify job data serializable (no functions, circular refs)
 
 **TypeScript build errors:**
-- Run `npm run typecheck` for detailed errors
+- Run `pnpm typecheck` for detailed errors
 - Ensure all dependencies have `@types/*` packages
 
 ---
@@ -541,7 +577,7 @@ Request → Middleware → Controller → Service → Database
 
 1. **Build the app:**
    ```bash
-   npm run build
+   pnpm build
    ```
 
 2. **Set environment variables** (use secrets manager):
@@ -553,22 +589,22 @@ Request → Middleware → Controller → Service → Database
 
 3. **Run migrations:**
    ```bash
-   npm run migration:run
+   pnpm migration:run
    ```
 
 4. **Start the API server:**
    ```bash
-   npm start
+   pnpm start
    ```
 
 5. **Run worker(s) in separate process(es):**
    ```bash
-   npm run worker
+   pnpm worker
    ```
 
 6. **Optional: Seed initial data:**
    ```bash
-   npm run seed
+   pnpm seed
    ```
 
 Use process managers like **PM2**, **systemd**, or **Docker** to manage long-running processes.
