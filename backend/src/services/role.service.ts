@@ -1,4 +1,4 @@
-import { roleRepository, permissionRepository } from '@database/repositories';
+import { roleRepository } from '@database/repositories';
 import { Role } from '@database/entities';
 
 export class RoleService {

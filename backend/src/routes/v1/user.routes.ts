@@ -1,13 +1,6 @@
 import { Router } from 'express';
 import { checkPermission } from '@common/middlewares/auth.middleware';
-import { PermissionResource, PermissionAction } from '@config/permission.enums';
-import {
-  registerUser,
-  loginUser,
-  me,
-  getUserById,
-  getAllUsers,
-} from '@controllers/user.controller';
+import { registerUser, loginUser, me } from '@controllers/user.controller';
 
 export const userRoutes: Router = Router();
 

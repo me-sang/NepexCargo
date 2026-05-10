@@ -28,7 +28,7 @@ export class LocalStorageService implements StorageDriver {
   }
 
   async getSignedUrl(key: string, _expiresInSeconds = 3600): Promise<string> {
-    return `/files/${key}`;
+    return await Promise.resolve(`/files/${key}`);
   }
 
   async exists(key: string): Promise<boolean> {

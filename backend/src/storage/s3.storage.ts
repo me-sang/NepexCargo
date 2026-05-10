@@ -49,9 +49,7 @@ export class S3StorageService implements StorageDriver {
   }
 
   async getSignedUrl(key: string, expiresInSeconds = 3600): Promise<string> {
-    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.bucket, Key: key }), {
-      expiresIn: expiresInSeconds,
-    });
+    return "string///// to implement later"
   }
 
   async exists(key: string): Promise<boolean> {
