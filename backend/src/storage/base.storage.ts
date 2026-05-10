@@ -23,7 +23,6 @@ export interface StorageDriver {
   exists(key: string): Promise<boolean>;
 }
 
-// Concrete StorageService that delegates to the actual driver
 export class StorageService implements StorageDriver {
   private driver: StorageDriver;
 

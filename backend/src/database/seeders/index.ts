@@ -2,13 +2,9 @@ import 'reflect-metadata';
 import { AppDataSource } from '../data-source';
 import { runSeeders } from './seeder-tracker';
 import { logger } from '../../common/helpers/logger';
+import { permissionSeeder, roleSeeder } from './roles-permissions.seeder';
 
-// Import seeders here as they are added, e.g.:
-// import { roleSeeder } from './001-roles.seeder';
-
-const seeders = [
-  // { name: '001-roles', run: roleSeeder },
-];
+const seeders = [permissionSeeder, roleSeeder];
 
 async function main() {
   await AppDataSource.initialize();
