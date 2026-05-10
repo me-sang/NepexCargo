@@ -51,8 +51,8 @@ export const checkPermission = (resource?: PermissionResource, action?: Permissi
       // Check permission
       const hasPermission = user.roles?.some((role) =>
         role.permissions?.some(
-          (perm) => perm.name === resource && (perm.category === action || perm.category === 'all')
-        )
+          (perm) => perm.name === resource && (perm.category === action || perm.category === 'all'),
+        ),
       );
 
       if (!hasPermission) {

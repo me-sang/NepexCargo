@@ -5,11 +5,31 @@ export const permissionSeeder = {
   name: '001-permissions',
   run: async () => {
     const permissions = [
-      { name: PermissionResource.SHIPMENT_MANAGEMENT, description: 'Manage shipments', action: PermissionAction.ALL },
-      { name: PermissionResource.ORDER_MANAGEMENT, description: 'Manage orders', action: PermissionAction.READ },
-      { name: PermissionResource.USER_MANAGEMENT, description: 'Manage users', action: PermissionAction.ALL },
-      { name: PermissionResource.PAYMENT_MANAGEMENT, description: 'Manage payments', action: PermissionAction.READ },
-      { name: PermissionResource.REPORT_MANAGEMENT, description: 'View reports', action: PermissionAction.READ },
+      {
+        name: PermissionResource.SHIPMENT_MANAGEMENT,
+        description: 'Manage shipments',
+        action: PermissionAction.ALL,
+      },
+      {
+        name: PermissionResource.ORDER_MANAGEMENT,
+        description: 'Manage orders',
+        action: PermissionAction.READ,
+      },
+      {
+        name: PermissionResource.USER_MANAGEMENT,
+        description: 'Manage users',
+        action: PermissionAction.ALL,
+      },
+      {
+        name: PermissionResource.PAYMENT_MANAGEMENT,
+        description: 'Manage payments',
+        action: PermissionAction.READ,
+      },
+      {
+        name: PermissionResource.REPORT_MANAGEMENT,
+        description: 'View reports',
+        action: PermissionAction.READ,
+      },
     ];
 
     for (const perm of permissions) {

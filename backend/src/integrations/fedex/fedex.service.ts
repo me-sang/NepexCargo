@@ -15,9 +15,7 @@ export class FedexService {
         shipper: { address: { postalCode: payload.originPostalCode, countryCode: 'US' } },
         recipient: { address: { postalCode: payload.destinationPostalCode, countryCode: 'US' } },
         pickupType: 'USE_SCHEDULED_PICKUP',
-        requestedPackageLineItems: [
-          { weight: { units: 'LB', value: payload.weight } },
-        ],
+        requestedPackageLineItems: [{ weight: { units: 'LB', value: payload.weight } }],
       },
     });
   }

@@ -19,10 +19,7 @@ async function ensureTable(): Promise<void> {
 }
 
 async function hasRun(name: string): Promise<boolean> {
-  const rows = await AppDataSource.query(
-    `SELECT 1 FROM ${SEEDER_TABLE} WHERE name = $1`,
-    [name],
-  );
+  const rows = await AppDataSource.query(`SELECT 1 FROM ${SEEDER_TABLE} WHERE name = $1`, [name]);
   return rows.length > 0;
 }
 

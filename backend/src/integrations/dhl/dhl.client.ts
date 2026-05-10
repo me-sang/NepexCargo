@@ -1,9 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { env } from '../../config/env.config';
 
-const BASE_URL = env.DHL_SANDBOX
-  ? 'https://api-mock.dhl.com'
-  : 'https://api.dhl.com';
+const BASE_URL = env.DHL_SANDBOX ? 'https://api-mock.dhl.com' : 'https://api.dhl.com';
 
 export class DhlClient {
   private http: AxiosInstance;

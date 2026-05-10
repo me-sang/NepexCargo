@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenException } from '@common/exceptions';
-import { requirePermission, requireAnyPermission, requireAllPermissions } from '@common/helpers/permission.helper';
+import {
+  requirePermission,
+  requireAnyPermission,
+  requireAllPermissions,
+} from '@common/helpers/permission.helper';
 
 /**
  * Middleware factory for checking single permission

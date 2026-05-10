@@ -15,4 +15,3 @@ export const userRoutes: Router = Router();
 userRoutes.post('/auth/register', registerUser);
 userRoutes.post('/auth/login', loginUser);
 userRoutes.get('/auth/me', checkPermission(), me);
-

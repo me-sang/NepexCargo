@@ -1,9 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { env } from '../../config/env.config';
 
-const BASE_URL = env.UPS_SANDBOX
-  ? 'https://wwwcie.ups.com/api'
-  : 'https://onlinetools.ups.com/api';
+const BASE_URL = env.UPS_SANDBOX ? 'https://wwwcie.ups.com/api' : 'https://onlinetools.ups.com/api';
 
 export class UpsClient {
   private http: AxiosInstance;

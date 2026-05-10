@@ -25,20 +25,30 @@ export async function requirePermission(userId: string, permissionName: string):
 /**
  * Check if user has any of the specified permissions
  */
-export async function requireAnyPermission(userId: string, permissionNames: string[]): Promise<void> {
+export async function requireAnyPermission(
+  userId: string,
+  permissionNames: string[],
+): Promise<void> {
   const hasPermission = await userService.hasAnyPermission(userId, permissionNames);
   if (!hasPermission) {
-    throw new ForbiddenException(`One of these permissions required: ${permissionNames.join(', ')}`);
+    throw new ForbiddenException(
+      `One of these permissions required: ${permissionNames.join(', ')}`,
+    );
   }
 }
 
 /**
  * Check if user has all specified permissions
  */
-export async function requireAllPermissions(userId: string, permissionNames: string[]): Promise<void> {
+export async function requireAllPermissions(
+  userId: string,
+  permissionNames: string[],
+): Promise<void> {
   const hasPermission = await userService.hasAllPermissions(userId, permissionNames);
   if (!hasPermission) {
-    throw new ForbiddenException(`All of these permissions required: ${permissionNames.join(', ')}`);
+    throw new ForbiddenException(
+      `All of these permissions required: ${permissionNames.join(', ')}`,
+    );
   }
 }
 

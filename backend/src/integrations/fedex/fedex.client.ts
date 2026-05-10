@@ -1,9 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { env } from '../../config/env.config';
 
-const BASE_URL = env.FEDEX_SANDBOX
-  ? 'https://apis-sandbox.fedex.com'
-  : 'https://apis.fedex.com';
+const BASE_URL = env.FEDEX_SANDBOX ? 'https://apis-sandbox.fedex.com' : 'https://apis.fedex.com';
 
 export class FedexClient {
   private http: AxiosInstance;
