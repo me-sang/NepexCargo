@@ -38,9 +38,8 @@ Health check: `curl http://localhost:3000/health`
 
 ## Documentation
 
-- **[PROJECT_SETUP.md](./PROJECT_SETUP.md)** — Full setup guide, architecture, & running the project
-- **[CODE_STYLE.md](./CODE_STYLE.md)** — Code quality, formatting, & naming conventions
-- **[PNPM_GUIDE.md](./PNPM_GUIDE.md)** — pnpm package manager guide
+- **[PROJECT_SETUP.md](./PROJECT_SETUP.md)** — Full setup, architecture, pnpm, ESLint, and running the project
+- **[CODE_STYLE.md](./CODE_STYLE.md)** — Code style guidelines and naming conventions
 
 ## Key Commands
 

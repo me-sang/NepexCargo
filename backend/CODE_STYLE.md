@@ -1,8 +1,13 @@
 # Code Style & Quality Guidelines
 
-This project uses **Prettier** for code formatting and **ESLint** for code quality and consistency.
+This project uses **Prettier** for code formatting and **ESLint 10.x** for code quality and consistency.
 
-## Setup
+**Latest versions:**
+- ESLint: 10.3.0
+- @typescript-eslint: 8.0.0
+- Prettier: 3.3.0
+
+See **PROJECT_SETUP.md** for full setup and usage instructions.
 
 ### Prerequisites
 
