@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "app.ts", "server.ts"],
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts", "tests/**"],
+  "exec": "ts-node -r tsconfig-paths/register -r reflect-metadata server.ts"
+}
