@@ -307,13 +307,78 @@ Outputs compiled code to `dist/` directory.
 | `pnpm test:integration` | Run integration tests only |
 | `pnpm test:e2e` | Run e2e tests only |
 | `pnpm test:coverage` | Run tests with coverage report |
-| `pnpm lint` | Check code with ESLint |
-| `pnpm lint:fix` | Auto-fix linting issues |
+| `pnpm format:check` | Check code formatting (Prettier) |
+| `pnpm format:write` | Auto-format all code (Prettier) |
+| `pnpm lint:check` | Check for code quality issues (ESLint) |
+| `pnpm lint:fix` | Auto-fix code quality issues (ESLint) |
 | `pnpm typecheck` | Type-check without emitting (fast) |
 
 ---
 
-## Key Concepts
+## Code Quality & Formatting
+
+This project uses **Prettier** for code formatting and **ESLint** for code quality.
+
+### Prettier (Code Formatting)
+
+Formats code consistently on save:
+- Single quotes (`'string'`)
+- Semicolons at end of lines
+- Trailing commas in objects/arrays
+- Max line length: 100 characters
+- 2-space indentation
+- Unix line endings
+
+**Commands:**
+```bash
+pnpm format:check   # Check if code is formatted
+pnpm format:write   # Auto-format all code
+```
+
+### ESLint (Code Quality)
+
+Enforces best practices and consistency:
+- ✅ No unused variables (use `_` prefix to ignore)
+- ✅ No unused imports
+- ✅ camelCase for variables/functions, PascalCase for types
+- ✅ No `console.log()` (only `console.warn/error`)
+- ✅ Use `const`/`let`, not `var`
+- ✅ Use `===` instead of `==`
+- ✅ Await promises or handle errors
+- ✅ No `any` types (use strict typing)
+
+**Commands:**
+```bash
+pnpm lint:check     # Check for linting issues
+pnpm lint:fix       # Auto-fix issues
+```
+
+### VS Code Setup
+
+Prettier and ESLint auto-fix on save:
+1. Install extensions:
+   - **Prettier - Code formatter** (`esbenp.prettier-vscode`)
+   - **ESLint** (`dbaeumer.vscode-eslint`)
+2. Save a file (`Ctrl+S` / `Cmd+S`) — code will auto-format and fix errors
+
+**Configuration files:**
+- `.prettierrc` — Prettier formatting rules
+- `.eslintrc.json` — ESLint quality rules
+- `.vscode/settings.json` — VS Code auto-format on save
+
+### Before Committing
+
+Always run:
+```bash
+pnpm format:write   # Format code
+pnpm lint:fix       # Fix lint issues
+pnpm typecheck      # Check types
+pnpm test           # Run tests
+```
+
+See **CODE_STYLE.md** for detailed guidelines and naming conventions.
+
+---
 
 ### Database Migrations & Seeders
 
