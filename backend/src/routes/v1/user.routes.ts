@@ -9,13 +9,10 @@ import {
   getAllUsers,
 } from '@controllers/user.controller';
 
-export const userRoutes = Router();
+export const userRoutes: Router = Router();
 
 // Auth routes
 userRoutes.post('/auth/register', registerUser);
 userRoutes.post('/auth/login', loginUser);
 userRoutes.get('/auth/me', checkPermission(), me);
 
-// User management routes
-userRoutes.get('/all', checkPermission(PermissionResource.USER_MANAGEMENT, PermissionAction.READ), getAllUsers);
-userRoutes.get('/:id', checkPermission(PermissionResource.USER_MANAGEMENT, PermissionAction.READ), getUserById);
