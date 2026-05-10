@@ -6,15 +6,15 @@ import {
   GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { StorageService, StorageFile, UploadResult } from './base.storage';
+import { StorageDriver, StorageFile, UploadResult } from './base.storage';
 import { env } from '../config/env.config';
 
-export class S3StorageService extends StorageService {
+export class S3StorageService implements StorageDriver {
   private readonly client: S3Client;
   private readonly bucket: string;
+  private readonly region: string;
 
   constructor() {
-    super();
     this.client = new S3Client({
       region: env.AWS_REGION,
       credentials: {
@@ -23,6 +23,7 @@ export class S3StorageService extends StorageService {
       },
     });
     this.bucket = env.AWS_S3_BUCKET;
+    this.region = env.AWS_REGION;
   }
 
   async upload(file: StorageFile, filePath: string): Promise<UploadResult> {
@@ -37,7 +38,7 @@ export class S3StorageService extends StorageService {
     );
     return {
       key,
-      url: `https://${this.bucket}.s3.${env.AWS_REGION}.amazonaws.com/${key}`,
+      url: `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`,
       size: file.size,
       mimeType: file.mimeType,
     };

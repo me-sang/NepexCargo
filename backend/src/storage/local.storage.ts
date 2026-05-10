@@ -1,13 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { StorageService, StorageFile, UploadResult } from './base.storage';
+import { StorageDriver, StorageFile, UploadResult } from './base.storage';
 import { env } from '../config/env.config';
 
-export class LocalStorageService extends StorageService {
+export class LocalStorageService implements StorageDriver {
   private readonly basePath: string;
 
   constructor() {
-    super();
     this.basePath = path.resolve(env.LOCAL_STORAGE_PATH);
   }
 
