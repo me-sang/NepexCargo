@@ -1,4 +1,7 @@
+import { config } from 'dotenv';
 import { cleanEnv, str, num, bool, makeValidator } from 'envalid';
+
+config();
 
 const commaSeparated = makeValidator<string[]>((input) => input.split(',').map((s) => s.trim()));
 
@@ -24,7 +27,7 @@ export const env = cleanEnv(process.env, {
   JWT_EXPIRES_IN: str({ default: '7d' }),
 
   // CORS
-  CORS_ORIGINS: commaSeparated({ default: 'http://localhost:3000' }),
+  CORS_ORIGINS: commaSeparated({ default: ['http://localhost:3000'] }),
 
   // Storage
   STORAGE_DRIVER: str({ choices: ['local', 's3'], default: 'local' }),
