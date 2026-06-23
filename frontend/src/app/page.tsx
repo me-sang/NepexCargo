@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { WhyChooseUsSection } from "@/components/sections/WhyChooseUsSection";
 import { StatsSection } from "@/components/sections/StatsSection";
@@ -11,17 +12,20 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function HomePage() {
   return (
-    <main>
-      <HeroSection />
-      <WhyChooseUsSection />
-      <StatsSection />
-      <HowItWorksSection />
-      <PartnersSection />
-      <IndustriesSection />
-      <TestimonialsSection />
-      <ArticlesSection />
-      <CTASection />
+    <>
+      <Navbar />
+      <main>
+        <HeroSection />
+        <WhyChooseUsSection />
+        <StatsSection />
+        <HowItWorksSection />
+        <PartnersSection />
+        <IndustriesSection />
+        <TestimonialsSection />
+        <ArticlesSection />
+        <CTASection />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

@@ -5,28 +5,28 @@ const articles = [
     date: "April 20, 2026",
     title: "Cargo+ opens new logistics hub in Rotterdam",
     excerpt: "Expanding our European network with a new 40,000 m² distribution center near the Port of Rotterdam.",
-    gradient: "from-[#0D3D5A] to-[#1B2B3B]",
-    tag: "Logistics",
+    imageSrc: "/images/article-rotterdam.jpg",
+    placeholder: "linear-gradient(160deg, #0D3D5A 0%, #1B2B3B 100%)",
   },
   {
     date: "May 20, 2026",
-    title: "Hybrid fleet reaches 150 active vehicles across Europe",
+    title: "Hybrid fleet reaches 100 active vehicles across Europe",
     excerpt: "Cargo+ continues its sustainability roadmap by integrating hybrid-transport solutions to reduce emissions.",
-    gradient: "from-[#1a5c3a] to-[#0D3D5A]",
-    tag: "Sustainability",
+    imageSrc: "/images/article-hybrid-fleet.jpg",
+    placeholder: "linear-gradient(160deg, #1a5570 0%, #0D3D5A 100%)",
   },
   {
     date: "June 20, 2026",
     title: "New cross-border corridor connects Warsaw and Hamburg",
     excerpt: "Improved transit times and real-time customs tracking enhance regional logistics efficiency.",
-    gradient: "from-[#7c2d12] to-[#1B2B3B]",
-    tag: "Routes",
+    imageSrc: "/images/article-warsaw.jpg",
+    placeholder: "linear-gradient(160deg, #3a1a10 0%, #1B2B3B 100%)",
   },
 ];
 
 export function ArticlesSection() {
   return (
-    <section className="py-20 md:py-28 bg-white">
+    <section className="py-20 md:py-24 bg-[#EBF7FB]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           subtitle="ARTICLES"
@@ -36,33 +36,31 @@ export function ArticlesSection() {
           className="mb-14"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {articles.map((article, index) => (
             <article
               key={index}
-              className="group bg-white rounded-2xl overflow-hidden border border-[#E5E7EB] hover:shadow-lg transition-shadow cursor-pointer"
+              className="group bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
             >
-              {/* Image placeholder */}
-              <div className={`aspect-video bg-gradient-to-br ${article.gradient} relative overflow-hidden`}>
-                <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                  <svg width="80" height="80" viewBox="0 0 24 24" fill="white">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                  </svg>
-                </div>
-                <span className="absolute top-3 left-3 bg-[#2CB4D7] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {article.tag}
-                </span>
+              {/* Image */}
+              <div className="relative h-52 overflow-hidden">
+                <div
+                  className="absolute inset-0"
+                  style={{ background: article.placeholder }}
+                />
+                {/* <Image src={article.imageSrc} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" /> */}
               </div>
 
               {/* Content */}
-              <div className="p-5">
-                <time className="text-xs text-[#9CA3AF]">{article.date}</time>
-                <h3 className="mt-2 text-sm font-bold text-[#1B2B3B] leading-snug group-hover:text-[#2CB4D7] transition-colors line-clamp-2">
+              <div className="p-5 flex flex-col gap-2">
+                <h3 className="text-base font-bold text-dark leading-snug group-hover:text-primary transition-colors line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="mt-2 text-xs text-[#6B7280] leading-relaxed line-clamp-2">
+                <p className="text-sm text-text-muted leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
+                {/* Date at bottom in teal */}
+                <time className="text-xs font-semibold text-primary mt-1">{article.date}</time>
               </div>
             </article>
           ))}

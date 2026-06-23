@@ -2,31 +2,43 @@ const industries = [
   {
     title: "Industrial & Manufacturing",
     description: "Just-in-time heavy transport for manufacturing logistics.",
-    gradient: "from-[#1B2B3B] to-[#2CB4D7]",
+    imageSrc: "/images/industry-manufacturing.jpg",
+    placeholder: "linear-gradient(160deg, #1a3040 0%, #2a6080 100%)",
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="white" opacity="0.8">
-        <path d="M12 3L2 12h3v9h6v-6h2v6h6v-9h3L12 3z"/>
-        <rect x="9" y="15" width="6" height="6" fill="white" opacity="0.5"/>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
+        <rect x="2" y="7" width="3" height="14" />
+        <rect x="9" y="7" width="3" height="14" />
+        <rect x="16" y="7" width="3" height="14" />
+        <path d="M2 7l5-5 5 5 5-5 5 5" />
+        <rect x="0" y="21" width="24" height="2" />
       </svg>
     ),
   },
   {
     title: "Retail & E-Commerce",
     description: "Fast, scalable delivery for retail and online sales.",
-    gradient: "from-[#0D3D5A] to-[#1a9bb8]",
+    imageSrc: "/images/industry-retail.jpg",
+    placeholder: "linear-gradient(160deg, #1a4060 0%, #2cb4d7 100%)",
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="white" opacity="0.8">
-        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.44 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
       </svg>
     ),
   },
   {
     title: "Food & Beverage",
     description: "Temperature-controlled transport from farm to market.",
-    gradient: "from-[#1a5c3a] to-[#2CB4D7]",
+    imageSrc: "/images/industry-food.jpg",
+    placeholder: "linear-gradient(160deg, #1a3840 0%, #1a6070 100%)",
     icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="white" opacity="0.8">
-        <path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-3.5-8.58-5-8.58-5s-8.58 1.5-8.58 5v3h17.16v-3z"/>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
+        <path d="M18 8h1a4 4 0 010 8h-1" />
+        <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+        <line x1="6" y1="1" x2="6" y2="4" />
+        <line x1="10" y1="1" x2="10" y2="4" />
+        <line x1="14" y1="1" x2="14" y2="4" />
       </svg>
     ),
   },
@@ -34,26 +46,31 @@ const industries = [
 
 export function IndustriesSection() {
   return (
-    <section className="py-16 md:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section className="py-0 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {industries.map((industry) => (
             <div
               key={industry.title}
-              className={`relative rounded-2xl overflow-hidden aspect-[4/3] bg-gradient-to-br ${industry.gradient} flex flex-col justify-end p-6 cursor-pointer group`}
+              className="relative rounded-2xl overflow-hidden cursor-pointer group"
+              style={{ minHeight: "360px" }}
             >
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+              {/* Background image / placeholder */}
+              <div
+                className="absolute inset-0"
+                style={{ background: industry.placeholder }}
+              />
+              {/* <Image src={industry.imageSrc} alt={industry.title} fill className="object-cover" /> */}
 
-              {/* Content */}
-              <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-1">{industry.title}</h3>
-                <p className="text-sm text-white/75 leading-snug">{industry.description}</p>
-              </div>
+              {/* Dark gradient overlay — stronger at bottom for text */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/30 to-transparent group-hover:from-black/85 transition-all duration-300" />
 
-              {/* Top-right icon */}
-              <div className="absolute top-5 right-5 opacity-50 group-hover:opacity-70 transition-opacity">
-                {industry.icon}
+              {/* Content at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                {/* Icon */}
+                <div className="mb-3">{industry.icon}</div>
+                <h3 className="text-base font-bold text-white mb-1.5 leading-snug">{industry.title}</h3>
+                <p className="text-xs text-white/75 leading-relaxed">{industry.description}</p>
               </div>
             </div>
           ))}
