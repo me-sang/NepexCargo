@@ -7,6 +7,15 @@ import { StructuredShipmentConfig } from './normalizer.types';
 /** Union of the integration-specific configs the shipment normalizer can return. */
 export type ShipmentClientConfig = EmxClientConfig | DhlClientConfig | FedexClientConfig;
 
+/** Maps a shipment provider name to its specific config, so callers get an exact type. */
+export type ShipmentConfigFor<N extends ClientName> = N extends ClientName.EMX
+  ? EmxClientConfig
+  : N extends ClientName.DHL
+    ? DhlClientConfig
+    : N extends ClientName.FEDEX
+      ? FedexClientConfig
+      : never;
+
 /** Fixed sandbox/production hosts for providers that don't take an explicit base URL. */
 const DHL_HOSTS = {
   sandbox: 'https://api-mock.dhl.com',
@@ -33,9 +42,14 @@ const resolveHost = (
 
 /**
  * Map a structured shipment config to a provider's integration-specific config.
+ * The return type narrows to the given provider's config (e.g. `EmxClientConfig`).
  *
  * @throws if `name` is not a shipment provider or a required field is missing.
  */
+export function normalizeShipmentConfig<N extends ClientName>(
+  config: StructuredShipmentConfig,
+  name: N,
+): ShipmentConfigFor<N>;
 export function normalizeShipmentConfig(
   config: StructuredShipmentConfig,
   name: ClientName,

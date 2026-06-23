@@ -5,6 +5,11 @@ import { StructuredPaymentConfig } from './normalizer.types';
 /** Union of the integration-specific configs the payment normalizer can return. */
 export type PaymentClientConfig = StripeClientConfig;
 
+/** Maps a payment provider name to its specific config, so callers get an exact type. */
+export type PaymentConfigFor<N extends ClientName> = N extends ClientName.STRIPE
+  ? StripeClientConfig
+  : never;
+
 /** Default Stripe API version used when the structured config omits one. */
 const DEFAULT_STRIPE_API_VERSION = '2025-04-30.basil';
 
@@ -17,9 +22,14 @@ const required = (value: string | undefined, name: ClientName, field: string): s
 
 /**
  * Map a structured payment config to a provider's integration-specific config.
+ * The return type narrows to the given provider's config (e.g. `StripeClientConfig`).
  *
  * @throws if `name` is not a payment provider or a required field is missing.
  */
+export function normalizePaymentConfig<N extends ClientName>(
+  config: StructuredPaymentConfig,
+  name: N,
+): PaymentConfigFor<N>;
 export function normalizePaymentConfig(
   config: StructuredPaymentConfig,
   name: ClientName,

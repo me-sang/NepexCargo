@@ -1,6 +1,14 @@
 import { ClientName, ClientType } from '../common/enums/client.enums';
-import { normalizePaymentConfig, PaymentClientConfig } from './payment.normalizer';
-import { normalizeShipmentConfig, ShipmentClientConfig } from './shipment.normalizer';
+import {
+  normalizePaymentConfig,
+  PaymentClientConfig,
+  PaymentConfigFor,
+} from './payment.normalizer';
+import {
+  normalizeShipmentConfig,
+  ShipmentClientConfig,
+  ShipmentConfigFor,
+} from './shipment.normalizer';
 import { StructuredPaymentConfig, StructuredShipmentConfig } from './normalizer.types';
 
 /**
@@ -13,16 +21,16 @@ import { StructuredPaymentConfig, StructuredShipmentConfig } from './normalizer.
  *   const client = new EmxClient(cfg);
  *   const service = new EmxService(client);
  */
-export function normalizeClientConfig(
+export function normalizeClientConfig<N extends ClientName>(
   config: StructuredShipmentConfig,
-  name: ClientName,
+  name: N,
   type: ClientType.SHIPMENT,
-): ShipmentClientConfig;
-export function normalizeClientConfig(
+): ShipmentConfigFor<N>;
+export function normalizeClientConfig<N extends ClientName>(
   config: StructuredPaymentConfig,
-  name: ClientName,
+  name: N,
   type: ClientType.PAYMENT,
-): PaymentClientConfig;
+): PaymentConfigFor<N>;
 export function normalizeClientConfig(
   config: StructuredShipmentConfig | StructuredPaymentConfig,
   name: ClientName,
