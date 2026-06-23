@@ -6,60 +6,58 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="bg-[#0D1B2A] py-16 md:py-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-          {/* Left text */}
-          <div className="lg:max-w-lg">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+    <section className="bg-[var(--color-surface)] pb-20 lg:pb-24">
+      <div className="container-content">
+        {/* Inset dark card with map-background photographic bg */}
+        <div className="relative rounded-[var(--radius-xl)] overflow-hidden">
+          {/* Background: dark navy base + map image overlaid */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(110deg, #0A2A33 0%, #0F4456 55%, #1B7E96 100%)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-65"
+            style={{ backgroundImage: "url('/map-background.png')" }}
+          />
+          {/* Left-side darkening so text stays legible over the map */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(9,36,43,0.7) 0%, rgba(9,36,43,0.45) 45%, rgba(9,36,43,0.1) 100%)",
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative px-7 sm:px-10 lg:px-14 py-12 lg:py-16">
+            <h2 className="text-[2rem] sm:text-[2.25rem] lg:text-[2.5rem] font-extrabold text-white leading-[1.1] tracking-tight max-w-2xl">
               One network,{" "}
-              <span className="text-[#2CB4D7]">220+</span> countries.
+              <span className="text-[var(--color-accent)]">220+</span> countries.
             </h2>
-            <p className="mt-4 text-sm md:text-base text-white/60 leading-relaxed">
-              From Dubai to Detroit, our routes span every major trade lane — air, sea and ground backed by real-time visibility.
+            <p className="mt-5 text-[15px] text-white/85 leading-relaxed max-w-md">
+              From Dubai to Detroit, our routes span every major trade lane — air,
+              sea and ground — backed by real-time visibility.
             </p>
-          </div>
 
-          {/* Decorative globe lines */}
-          <div className="hidden lg:block relative w-64 h-64 shrink-0">
-            <div className="absolute inset-0 rounded-full border border-[#2CB4D7]/20" />
-            <div className="absolute inset-4 rounded-full border border-[#2CB4D7]/15" />
-            <div className="absolute inset-8 rounded-full border border-[#2CB4D7]/10" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-[#2CB4D7]/20 flex items-center justify-center">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2CB4D7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                </svg>
-              </div>
+            {/* Stats — left-aligned row at the bottom */}
+            <div className="mt-12 lg:mt-16 grid grid-cols-3 gap-6 sm:gap-10 lg:gap-14 max-w-xl">
+              {stats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-[2rem] sm:text-[2.5rem] lg:text-[2.75rem] font-extrabold text-[var(--color-accent)] leading-none tracking-tight">
+                    {stat.value}
+                  </div>
+                  <div className="mt-2 text-[12px] sm:text-[13px] text-white/80 leading-snug">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
-            {/* Animated dots */}
-            {[0, 60, 120, 180, 240, 300].map((deg) => (
-              <div
-                key={deg}
-                className="absolute w-2 h-2 rounded-full bg-[#2CB4D7]"
-                style={{
-                  top: `${50 + 44 * Math.sin((deg * Math.PI) / 180)}%`,
-                  left: `${50 + 44 * Math.cos((deg * Math.PI) / 180)}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="flex flex-row lg:flex-col gap-8 lg:gap-6">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center lg:text-right">
-                <div className="text-3xl md:text-4xl font-extrabold text-white">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-white/50 mt-1 leading-tight max-w-[100px] lg:max-w-none ml-auto">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

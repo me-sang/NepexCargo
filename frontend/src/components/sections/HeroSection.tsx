@@ -1,151 +1,223 @@
 "use client";
 
 import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
-import { Button } from "@/components/ui/Button";
 
-const shippingTypes = [
+type ShippingType = "international" | "domestic" | "local";
+
+const shippingCards: {
+  id: ShippingType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
   {
     id: "international",
     label: "International",
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="white" />
-        <path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z" fill="white" opacity="0.7"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]" aria-hidden="true">
+        <path d="M21 16l-8-4.5V6a1 1 0 00-2 0v5.5L3 16v1.5l8-2v3.5l-2 1.5v1l3-.8 3 .8v-1L13 19v-3.5l8 2V16z" />
       </svg>
     ),
-    bgImage: "linear-gradient(135deg, #1a9bb8 0%, #0d6e87 100%)",
   },
   {
     id: "domestic",
     label: "Domestic",
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]" aria-hidden="true">
+        <path d="M3 7h11v10H3z" />
+        <path d="M14 10h4l3 3v4h-7" />
+        <circle cx="7.5" cy="18" r="1.8" />
+        <circle cx="17" cy="18" r="1.8" />
       </svg>
     ),
-    bgImage: "linear-gradient(135deg, #2cb4d7 0%, #1a9bb8 100%)",
   },
   {
     id: "local",
     label: "Local",
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 7c0-1.1-.9-2-2-2h-3v2h3v2.65L13.52 14H10V9H6c-2.21 0-4 1.79-4 4v3h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4.48L19 10.35V7zM7 17c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm13 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-7h-2V8h2v2z"/>
-        <circle cx="20" cy="16" r="2" fill="white"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]" aria-hidden="true">
+        <circle cx="6" cy="17" r="2.5" />
+        <circle cx="18" cy="17" r="2.5" />
+        <path d="M6 17L10 9h4l4 8" />
+        <path d="M11 9V6h2" />
+        <path d="M14 5h3l1.5 2.5" />
       </svg>
     ),
-    bgImage: "linear-gradient(135deg, #37c5e5 0%, #2CB4D7 100%)",
   },
 ];
 
 export function HeroSection() {
   const [trackingNumber, setTrackingNumber] = useState("");
-  const [activeType, setActiveType] = useState("international");
+  const [activeCard, setActiveCard] = useState<ShippingType>("international");
+  const carouselSlides = 4;
+  const [activeSlide, setActiveSlide] = useState(1);
 
   return (
-    <section className="relative min-h-screen flex flex-col">
-      {/* Background */}
+    <section className="relative min-h-[720px] lg:min-h-[820px] flex flex-col overflow-hidden">
+      {/* Photographic backdrop */}
       <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/hero-bg.png')" }}
+      />
+
+      {/* Refined overlay — preserves photo while seating headline */}
+      <div
+        aria-hidden="true"
         className="absolute inset-0 z-0"
         style={{
-          background: "linear-gradient(135deg, #0d1b2a 0%, #1a3a4a 40%, #0f2537 100%)",
+          background:
+            "linear-gradient(180deg, rgba(9,36,43,0.20) 0%, rgba(9,36,43,0.05) 30%, rgba(9,36,43,0.40) 100%)",
         }}
-      >
-        {/* Decorative overlay dots */}
-        <div className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "radial-gradient(circle, #2CB4D7 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      {/* Navbar */}
-      <Navbar transparent />
+      />
 
       {/* Hero content */}
-      <div className="relative z-10 flex-1 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 md:py-24">
-          <div className="max-w-2xl mb-12">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-              Move anything,
-              <br />
-              <span className="text-[#2CB4D7]">anywhere</span> it matters.
-            </h1>
-          </div>
+      <div className="relative z-10 flex-1 flex flex-col justify-center w-full container-content py-16 lg:py-20">
+        {/* Headline */}
+        <div className="max-w-4xl mx-auto text-center mb-12 lg:mb-14">
+          <h1
+            className="font-extrabold text-white leading-[1.05] tracking-[-0.025em] text-[2.25rem] sm:text-[2.875rem] lg:text-[3.5rem]"
+            style={{ textShadow: "0 2px 32px rgba(9,36,43,0.45)" }}
+          >
+            Move anything, anywhere it matters.
+          </h1>
+        </div>
 
-          {/* Shipping card */}
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl">
-            {/* Shipping types */}
-            <div className="grid grid-cols-4 gap-3 mb-6">
-              {shippingTypes.map((type) => (
+        {/* Quote widget */}
+        <div className="max-w-2xl w-full mx-auto bg-white rounded-[20px] shadow-[var(--shadow-float)] p-5 sm:p-6">
+          {/* Card row — 3 icon cards + 1 estimate card */}
+          <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_1fr_1.4fr] gap-3 mb-4">
+            {shippingCards.map((card) => {
+              const isActive = activeCard === card.id;
+              return (
                 <button
-                  key={type.id}
-                  onClick={() => setActiveType(type.id)}
-                  className={`
-                    flex flex-col items-center gap-2 rounded-xl p-3 transition-all duration-200 cursor-pointer
-                    ${activeType === type.id ? "ring-2 ring-[#2CB4D7] ring-offset-2" : "opacity-80 hover:opacity-100"}
-                  `}
+                  key={card.id}
+                  type="button"
+                  onClick={() => setActiveCard(card.id)}
+                  aria-pressed={isActive}
+                  className="group flex flex-col items-center"
                 >
                   <div
-                    className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden"
-                    style={{ background: type.bgImage }}
+                    className={`
+                      w-full max-w-[88px] aspect-square rounded-[12px] flex items-center justify-center
+                      transition-all duration-200
+                      ${
+                        isActive
+                          ? "bg-[var(--color-accent)] text-white shadow-[0_6px_18px_-6px_rgba(44,180,215,0.55)]"
+                          : "bg-[#F1F6F8] text-[var(--color-brand)] group-hover:bg-[#E6F0F4]"
+                      }
+                    `}
                   >
-                    {type.icon}
+                    {card.icon}
                   </div>
-                  <span className="text-xs font-semibold text-[#1B2B3B]">{type.label}</span>
+                  <span
+                    className={`
+                      mt-2.5 text-[13px] font-semibold leading-none transition-colors
+                      ${isActive ? "text-[var(--color-text)]" : "text-[#56707A]"}
+                    `}
+                  >
+                    {card.label}
+                  </span>
                 </button>
-              ))}
+              );
+            })}
 
-              {/* Get an Estimate box */}
-              <button className="flex flex-col items-center justify-center gap-2 rounded-xl p-3 bg-[#2CB4D7] text-white cursor-pointer hover:bg-[#1A9BB8] transition-colors">
-                <div className="w-10 h-10 rounded-full border-2 border-white/50 flex items-center justify-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
+            {/* Get an Estimate card */}
+            <button
+              type="button"
+              className="col-span-2 sm:col-span-1 flex flex-col items-start justify-between rounded-[12px] p-4 bg-[var(--color-accent)] text-white text-left hover:bg-[var(--color-accent-hover)] transition-colors min-h-[112px]"
+            >
+              <div>
+                <div className="text-[15px] font-bold leading-tight">
+                  Get an Estimate
                 </div>
-                <span className="text-xs font-bold text-center leading-tight">
-                  Get an<br />Estimate
-                </span>
-                <span className="text-[10px] text-white/75">(takes ~2 mins)</span>
-              </button>
-            </div>
-
-            {/* Tracking input */}
-            <div className="flex items-center gap-2 border-2 border-[#E5E7EB] rounded-xl px-4 py-1 focus-within:border-[#2CB4D7] transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2CB4D7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13" rx="2" />
-                <path d="M16 8h4l3 3v5h-7V8z" />
-                <circle cx="5.5" cy="18.5" r="2.5" />
-                <circle cx="18.5" cy="18.5" r="2.5" />
-              </svg>
-              <input
-                type="text"
-                value={trackingNumber}
-                onChange={(e) => setTrackingNumber(e.target.value)}
-                placeholder="Enter your tracking number (e.g. LP-987234)"
-                className="flex-1 py-3 text-sm text-[#374151] placeholder-[#9CA3AF] outline-none bg-transparent"
-              />
-              <Button variant="primary" size="sm" className="shrink-0">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="1" y="3" width="15" height="13" rx="2" />
-                  <path d="M16 8h4l3 3v5h-7V8z" />
-                  <circle cx="5.5" cy="18.5" r="2.5" />
-                  <circle cx="18.5" cy="18.5" r="2.5" />
+                <div className="text-[11px] text-white/85 mt-0.5">
+                  (takes ~2 mins)
+                </div>
+              </div>
+              <span className="mt-2 w-8 h-8 rounded-full bg-white text-[var(--color-accent)] flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-                Track Shipment
-              </Button>
-            </div>
+              </span>
+            </button>
+          </div>
+
+          {/* Tracking row */}
+          <div className="flex items-center gap-2 rounded-full border border-[var(--color-accent)]/30 hover:border-[var(--color-accent)]/55 focus-within:border-[var(--color-accent)] transition-colors pl-4 pr-1.5 py-1.5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--color-accent)"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+              <path d="M3.27 6.96L12 12l8.73-5.04M12 22V12" />
+              <circle cx="17" cy="6" r="3" fill="none" stroke="var(--color-accent)" />
+              <path d="M16 6h2M17 5v2" stroke="var(--color-accent)" strokeWidth="1.2" />
+            </svg>
+            <input
+              type="text"
+              value={trackingNumber}
+              onChange={(e) => setTrackingNumber(e.target.value)}
+              placeholder="Enter your tracking number (e.g. LP-987234)"
+              className="flex-1 min-w-0 py-2 text-[14px] text-[var(--color-text)] placeholder:text-[#9CA3AF] outline-none bg-transparent"
+            />
+            <button
+              type="button"
+              className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-accent)] text-white text-[13px] font-semibold hover:bg-[var(--color-accent-hover)] transition-colors"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 7h11v8H3z" />
+                <path d="M14 10h4l3 3v2h-7z" />
+                <circle cx="7" cy="17" r="2" />
+                <circle cx="17" cy="17" r="2" />
+              </svg>
+              Track Shipment
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Decorative bottom wave */}
-      <div className="absolute bottom-0 left-0 right-0 z-10">
-        <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M0 60L1440 60L1440 20C1200 60 720 0 0 40L0 60Z" fill="white" />
-        </svg>
+        {/* Carousel pagination */}
+        <div
+          className="flex items-center justify-center gap-2 mt-10"
+          role="tablist"
+          aria-label="Hero slides"
+        >
+          {Array.from({ length: carouselSlides }).map((_, i) => {
+            const isActive = i === activeSlide;
+            return (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={`Slide ${i + 1}`}
+                onClick={() => setActiveSlide(i)}
+                className={`transition-all rounded-full ${
+                  isActive
+                    ? "w-7 h-1.5 bg-[var(--color-accent)]"
+                    : "w-1.5 h-1.5 bg-white/65 hover:bg-white/85"
+                }`}
+              />
+            );
+          })}
+        </div>
       </div>
     </section>
   );
