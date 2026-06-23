@@ -1,15 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
-import { env } from '../../config/env.config';
+import { EmxClientConfig } from './emx.types';
 
 /**
  * Low-level HTTP client for the EMX (Emirates Post) API.
  *
  * EMX splits across two hosts with two auth schemes:
- *   - Shipments + label  (`EMX_BASE_URL`)          → `x-api-key` + `Password`
- *   - Tracking           (`EMX_TRACKING_BASE_URL`) → `AccountNo` + `Password`
+ *   - Shipments + label  → `x-api-key` + `Password`
+ *   - Tracking           → `AccountNo` + `Password`
  *
- * Two axios instances keep each base URL and header set isolated; the service
- * layer ({@link EmxService}) calls the typed helpers below.
+ * Config is injected ({@link EmxClientConfig}) by the caller — the client does
+ * not read `env`. Two axios instances keep each base URL and header set isolated.
  */
 export class EmxClient {
   /** Create / Cancel / Print Label. Authenticated with `x-api-key` + `Password`. */
@@ -17,25 +17,25 @@ export class EmxClient {
   /** Tracking. Authenticated with `AccountNo` + `Password`. */
   private readonly trackingHttp: AxiosInstance;
 
-  constructor() {
+  constructor(config: EmxClientConfig) {
     this.shipmentsHttp = axios.create({
-      baseURL: env.EMX_BASE_URL,
+      baseURL: config.baseUrl,
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header name
         'Content-Type': 'application/json',
         // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header name
-        'x-api-key': env.EMX_API_KEY,
-        Password: env.EMX_PASSWORD,
+        'x-api-key': config.apiKey,
+        Password: config.password,
       },
     });
 
     this.trackingHttp = axios.create({
-      baseURL: env.EMX_TRACKING_BASE_URL,
+      baseURL: config.trackingBaseUrl,
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header name
         'Content-Type': 'application/json',
-        AccountNo: env.EMX_ACCOUNT_NO,
-        Password: env.EMX_PASSWORD,
+        AccountNo: config.accountNo,
+        Password: config.password,
       },
     });
   }

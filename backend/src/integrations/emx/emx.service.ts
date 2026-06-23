@@ -8,11 +8,11 @@ import {
 } from './emx.types';
 
 /**
- * Typed wrapper over the four EMX (Emirates Post) endpoints. Exported as a
- * singleton ({@link emxService}) per backend convention — no `req`/`res` here.
+ * Typed wrapper over the four EMX (Emirates Post) endpoints. The client is
+ * injected by the caller (`new EmxService(emxClient)`) — no `req`/`res` here.
  */
 export class EmxService {
-  private readonly client = new EmxClient();
+  constructor(private readonly client: EmxClient) {}
 
   /** Create a shipment and return the booking (AWB number + base64 label). */
   async createShipment(payload: EmxCreateShipmentRequest): Promise<EmxCreateShipmentResponse> {
@@ -38,5 +38,3 @@ export class EmxService {
     return this.client.getTracking<EmxTrackingResponse>('/api/Tracking', { awbNumber });
   }
 }
-
-export const emxService = new EmxService();

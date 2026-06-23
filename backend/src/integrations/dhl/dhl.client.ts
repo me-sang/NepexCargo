@@ -1,15 +1,23 @@
 import axios, { AxiosInstance } from 'axios';
-import { env } from '../../config/env.config';
 
-const BASE_URL = env.DHL_SANDBOX ? 'https://api-mock.dhl.com' : 'https://api.dhl.com';
+/**
+ * Integration-specific config consumed by {@link DhlClient}. Produced by the
+ * shipment normalizer (which resolves the sandbox/production host) — the client
+ * does not read `env`.
+ */
+export interface DhlClientConfig {
+  baseUrl: string;
+  apiKey: string;
+}
 
 export class DhlClient {
   private http: AxiosInstance;
 
-  constructor() {
+  constructor(config: DhlClientConfig) {
     this.http = axios.create({
-      baseURL: BASE_URL,
-      headers: { 'DHL-API-Key': env.DHL_API_KEY },
+      baseURL: config.baseUrl,
+      // eslint-disable-next-line @typescript-eslint/naming-convention -- HTTP header name
+      headers: { 'DHL-API-Key': config.apiKey },
     });
   }
 

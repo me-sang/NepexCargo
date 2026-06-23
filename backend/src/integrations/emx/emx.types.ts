@@ -29,6 +29,25 @@ import {
 } from './emx.enums';
 
 // ---------------------------------------------------------------------------
+// Client configuration
+// ---------------------------------------------------------------------------
+
+/**
+ * Integration-specific config consumed by {@link EmxClient}. Produced by the
+ * shipment normalizer from a structured/common config — the client never reads
+ * `env` itself.
+ */
+export interface EmxClientConfig {
+  /** Shipments + label host (Create / Cancel / Print). Authenticated with x-api-key. */
+  baseUrl: string;
+  /** Tracking host. Authenticated with AccountNo. */
+  trackingBaseUrl: string;
+  apiKey: string;
+  accountNo: string;
+  password: string;
+}
+
+// ---------------------------------------------------------------------------
 // Shared / primitive structures
 // ---------------------------------------------------------------------------
 

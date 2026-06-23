@@ -1,8 +1,7 @@
 import { FedexClient } from './fedex.client';
-import { env } from '../../config/env.config';
 
 export class FedexService {
-  private client = new FedexClient();
+  constructor(private readonly client: FedexClient) {}
 
   async getRates(payload: {
     originPostalCode: string;
@@ -10,7 +9,7 @@ export class FedexService {
     weight: number;
   }): Promise<unknown> {
     return this.client.post('/rate/v1/rates/quotes', {
-      accountNumber: { value: env.FEDEX_ACCOUNT_NUMBER },
+      accountNumber: { value: this.client.accountNumber },
       requestedShipment: {
         shipper: { address: { postalCode: payload.originPostalCode, countryCode: 'US' } },
         recipient: { address: { postalCode: payload.destinationPostalCode, countryCode: 'US' } },
