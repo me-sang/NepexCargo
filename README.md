@@ -212,8 +212,20 @@ pnpm migration:revert
 pnpm migration:show
 ```
 
+**File naming** — every migration file must follow the project's UTC-based naming convention. See [`backend/src/database/migrations/RULES.md`](./backend/src/database/migrations/RULES.md) for the full rules. In short, the file name is a **15-digit UTC timestamp** + a descriptive name:
+
+```
+<YY><MM><DD><HH><mm><ss><SSS>-<some-name>.ts
+```
+
+e.g. for `2026-06-24 17:55:03.249` UTC → `26` + `06` + `24` + `17` + `55` + `03` + `249` → `260624175503249-add-shipment-table.ts` (class `AddShipmentTable260624175503249`). Generate the timestamp with:
+
+```bash
+node -e "const d=new Date(),p=(n,l=2)=>String(n).padStart(l,'0');console.log(`${p(d.getUTCFullYear()%100)}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}${p(d.getUTCMilliseconds(),3)}`)"
+```
+
 **Rules:**
-- One migration per schema change; use a descriptive name (e.g. `AddShipmentTable`).
+- One migration per schema change; use a descriptive name (e.g. `add-shipment-table`).
 - **Never edit a migration that has already been applied** to a shared/production DB — create a new one instead.
 - Every `up()` must have a correct, reversible `down()`. See [`1715000000000-CreateUsersRolesPermissions.ts`](./backend/src/database/migrations/1715000000000-CreateUsersRolesPermissions.ts) for the established pattern (tables → indices → foreign keys, reversed in `down`).
 - Migrations are written with the QueryRunner API (`createTable`, `createForeignKey`, …), not raw SQL, to stay DB-portable.
