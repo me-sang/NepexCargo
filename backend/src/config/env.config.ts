@@ -56,4 +56,13 @@ export const env = cleanEnv(process.env, {
   // DHL
   DHL_API_KEY: str({ default: '' }),
   DHL_SANDBOX: bool({ default: true }),
+
+  // EMX (Emirates Post)
+  // Shipments + label host (Create / Cancel / Print Label) — uses x-api-key + Password.
+  EMX_BASE_URL: str({ default: 'https://local-stg.epservices.ae' }),
+  // Tracking host — separate subdomain, authenticated with AccountNo + Password.
+  EMX_TRACKING_BASE_URL: str({ default: 'https://tracking-stg.epservices.ae' }),
+  EMX_API_KEY: str({ default: '' }),
+  EMX_ACCOUNT_NO: str({ default: '' }),
+  EMX_PASSWORD: str({ default: '' }),
 });

@@ -1,7 +1,7 @@
 import { DhlClient } from './dhl.client';
 
 export class DhlService {
-  private client = new DhlClient();
+  constructor(private readonly client: DhlClient) {}
 
   async trackShipment(trackingNumber: string): Promise<unknown> {
     return this.client.get('/track/shipments', { trackingNumber });
