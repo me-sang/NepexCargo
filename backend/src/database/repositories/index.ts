@@ -9,3 +9,4 @@ export { tenantSettingRepository } from './tenant-setting.repository';
 export { tenantDomainRepository } from './tenant-domain.repository';
 export { tenantConfigurationRepository } from './tenant-configuration.repository';
 export { tenantUsageRepository } from './tenant-usage.repository';
+export { countryRepository } from './country.repository';
