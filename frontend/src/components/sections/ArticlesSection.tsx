@@ -9,13 +9,15 @@ type Article = {
   imageAlt: string;
 };
 
+const ARTICLE_IMAGE = "/images/article-dummy.png";
+
 const articles: Article[] = [
   {
     title: "Cargo+ opens new logistics hub in Rotterdam",
     excerpt:
       "Expanding our European network with a new 40,000 m² distribution center near the Port of Rotterdam.",
     date: "April 20, 2026",
-    image: "/images/articles/article-1.jpg",
+    image: ARTICLE_IMAGE,
     imageAlt: "Reach stacker lifting a container at a port terminal",
   },
   {
@@ -23,7 +25,7 @@ const articles: Article[] = [
     excerpt:
       "Cargo+ continues its sustainability roadmap by integrating hybrid transport solutions to reduce emissions.",
     date: "May 20, 2026",
-    image: "/images/articles/article-2.jpg",
+    image: ARTICLE_IMAGE,
     imageAlt: "Container truck on a highway",
   },
   {
@@ -31,7 +33,7 @@ const articles: Article[] = [
     excerpt:
       "Improved transit times and real-time customs tracking enhance regional logistics efficiency.",
     date: "June 20, 2026",
-    image: "/images/articles/article-3.jpg",
+    image: ARTICLE_IMAGE,
     imageAlt: "Reach stacker moving a container in a stacked container yard",
   },
 ];

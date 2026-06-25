@@ -1,42 +1,61 @@
+import Image from "next/image";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
-/**
- * Partner names from spec. Logos are placeholder wordmarks until real assets land.
- * Card style: white bg, subtle border, no shadow (per spec).
- */
+const PARTNER_LOGO = "/images/dummy-logo.png";
+
 const partnersRow1 = [
-  { name: "LOGISTICS Transportation", accent: "#1B7E96" },
-  { name: "ALPHALEAD EXPRESS", accent: "#1B7E96" },
-  { name: "HEGELMANN", accent: "#2390AC" },
-  { name: "MTL Multimodal", accent: "#1B7E96" },
+  "Logistics Transportation",
+  "Alphalead Express",
+  "Hegelmann",
+  "MTL Multimodal",
 ];
 
 const partnersRow2 = [
-  { name: "LOGLINE", accent: "#ED6C30" },
-  { name: "ace logistics", accent: "#2CB4D7" },
-  { name: "ALIOTH SPEDYCJA", accent: "#2390AC" },
-  { name: "KJTT", accent: "#2390AC" },
-  { name: "FlyOx Shipping", accent: "#09242B" },
-  { name: "XCEL LOGISOLUTIONS", accent: "#1B7E96" },
+  "Logline",
+  "Ace Logistics",
+  "Alioth Spedycja",
+  "KJTT",
+  "FlyEx Shipping",
+  "Xcel Logisolutions",
 ];
 
-function PartnerCard({ name, accent }: { name: string; accent: string }) {
+function PartnerCard({ name }: { name: string }) {
   return (
-    <div className="flex items-center justify-center px-5 py-4 bg-white rounded-[var(--radius-md)] border border-[var(--color-border)] min-h-[64px]">
-      <span
-        className="text-[13px] sm:text-sm font-extrabold tracking-tight text-center leading-tight"
-        style={{ color: accent }}
-      >
-        {name}
-      </span>
+    <div className="flex items-center justify-center bg-white rounded-[var(--radius-md)] border border-[var(--color-border)] h-[78px] lg:h-[88px] px-5">
+      <div className="relative w-full h-[42px] lg:h-[52px]">
+        <Image
+          src={PARTNER_LOGO}
+          alt={name}
+          fill
+          sizes="160px"
+          className="object-contain"
+        />
+      </div>
     </div>
   );
 }
 
 export function PartnersSection() {
   return (
-    <section className="py-20 lg:py-24 bg-white">
-      <div className="container-content">
+    <section className="relative bg-white py-20 lg:py-24 overflow-hidden">
+      {/* Decorative ring — top-left corner */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/Ellipse%203.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-[260px] -left-[200px] w-[540px] h-auto select-none"
+      />
+      {/* Decorative ring — top-right corner (mirrored) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/Ellipse%203.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-[260px] -right-[200px] w-[540px] h-auto select-none scale-x-[-1]"
+      />
+
+      <div className="relative z-10 container-content">
         <SectionHeader
           eyebrow="Our Partners"
           title="We work with the best in the business"
@@ -45,17 +64,17 @@ export function PartnersSection() {
           className="mb-12 mx-auto"
         />
 
-        {/* Row 1 — 4 larger partners */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4 mb-3 lg:mb-4">
-          {partnersRow1.map((p) => (
-            <PartnerCard key={p.name} {...p} />
+        {/* Row 1 — 4 wider cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-5 mb-4 lg:mb-5 max-w-[920px] mx-auto">
+          {partnersRow1.map((name) => (
+            <PartnerCard key={name} name={name} />
           ))}
         </div>
 
-        {/* Row 2 — 6 smaller partners */}
+        {/* Row 2 — 6 smaller cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-          {partnersRow2.map((p) => (
-            <PartnerCard key={p.name} {...p} />
+          {partnersRow2.map((name) => (
+            <PartnerCard key={name} name={name} />
           ))}
         </div>
       </div>
