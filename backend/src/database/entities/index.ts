@@ -1,3 +1,13 @@
 export { User } from './user.entity';
 export { Role } from './role.entity';
 export { Permission } from './permission.entity';
+export { Tenant } from './tenant.entity';
+export { Plan } from './plan.entity';
+export { PlanFeature } from './plan-feature.entity';
+export { TenantPlan } from './tenant-plan.entity';
+export { TenantSetting } from './tenant-setting.entity';
+export { TenantDomain } from './tenant-domain.entity';
+export { TenantConfiguration } from './tenant-configuration.entity';
+export { TenantUsage } from './tenant-usage.entity';
+export { Country } from './country.entity';
+export { SuperAdmin, SuperAdminStatus } from './super-admin.entity';

@@ -26,6 +26,10 @@ export const env = cleanEnv(process.env, {
   JWT_SECRET: str(),
   JWT_EXPIRES_IN: str({ default: '7d' }),
 
+  // Super Admin (used by seeder only)
+  SUPER_ADMIN_EMAIL: str({ default: 'superadmin@example.com' }),
+  SUPER_ADMIN_PASSWORD: str({ default: 'changeme123' }),
+
   // CORS
   CORS_ORIGINS: commaSeparated({ default: ['http://localhost:3000'] }),
 
