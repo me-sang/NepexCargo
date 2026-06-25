@@ -3,8 +3,9 @@ import { AppDataSource } from '../data-source';
 import { runSeeders } from './seeder-tracker';
 import { logger } from '../../common/helpers/logger';
 import { permissionSeeder, roleSeeder } from './roles-permissions.seeder';
+import { countrySeeder } from './country.seeder';
 
-const seeders = [permissionSeeder, roleSeeder];
+const seeders = [permissionSeeder, roleSeeder, countrySeeder];
 
 async function main() {
   await AppDataSource.initialize();
