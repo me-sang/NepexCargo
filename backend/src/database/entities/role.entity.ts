@@ -15,16 +15,16 @@ import { Permission } from './permission.entity';
 @Index(['name'], { unique: true })
 export class Role {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string; // e.g., 'admin', 'manager', 'user'
+  name!: string; // e.g., 'admin', 'manager', 'user'
 
   @Column()
-  description: string;
+  description!: string;
 
   @Column({ default: true })
-  isActive: boolean;
+  isActive!: boolean;
 
   @ManyToMany(() => Permission)
   @JoinTable({
@@ -32,14 +32,14 @@ export class Role {
     joinColumn: { name: 'roleId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'permissionId', referencedColumnName: 'id' },
   })
-  permissions: Permission[];
+  permissions!: Permission[];
 
   @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  users!: User[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
