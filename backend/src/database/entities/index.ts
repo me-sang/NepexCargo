@@ -10,3 +10,4 @@ export { TenantDomain } from './tenant-domain.entity';
 export { TenantConfiguration } from './tenant-configuration.entity';
 export { TenantUsage } from './tenant-usage.entity';
 export { Country } from './country.entity';
+export { SuperAdmin, SuperAdminStatus } from './super-admin.entity';
