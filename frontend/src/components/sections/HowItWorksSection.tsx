@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
 const steps = [
@@ -62,78 +63,55 @@ export function HowItWorksSection() {
       />
 
       <div className="relative container-content">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16 items-start">
-          {/* Left — header + step cards */}
-          <div>
-            <SectionHeader
-              eyebrow="How It Works"
-              title="From quote to doorstep in four steps"
-              description="A simple, transparent flow built for individuals and businesses."
-              align="left"
-              light
-              className="mb-10"
-            />
+        {/* Top: title left, image right */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-12 items-center mb-12 lg:mb-14">
+          <SectionHeader
+            eyebrow="How It Works"
+            title="From quote to doorstep in four steps"
+            description="A simple, transparent flow built for individuals and businesses."
+            align="left"
+            light
+          />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
-              {steps.map((step) => (
-                <article
-                  key={step.number}
-                  className="rounded-[var(--radius-lg)] p-5 bg-white/12 backdrop-blur-sm border border-white/15 hover:bg-white/[0.18] transition-colors"
+          <div className="hidden lg:flex items-center justify-center">
+            <div className="relative w-full aspect-[16/9]">
+              <Image
+                src="/images/how-it-works.png"
+                alt="Cargo delivery"
+                fill
+                sizes="(min-width: 1024px) 580px, 100vw"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom: four step cards in a row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          {steps.map((step) => (
+            <article
+              key={step.number}
+              className="rounded-[var(--radius-lg)] p-5 bg-white/12 backdrop-blur-sm border border-white/15 hover:bg-white/[0.18] transition-colors"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="text-[28px] font-extrabold leading-none"
+                  style={{ color: "#6FE4FF" }}
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <span
-                      className="text-[28px] font-extrabold leading-none"
-                      style={{ color: "#6FE4FF" }}
-                    >
-                      {step.number}
-                    </span>
-                    <span className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-white">
-                      {step.icon}
-                    </span>
-                  </div>
-                  <h3 className="text-[15px] font-bold text-white mb-1.5">
-                    {step.title}
-                  </h3>
-                  <p className="text-[13px] text-white/75 leading-relaxed">
-                    {step.description}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — truck illustration placeholder */}
-          <div className="hidden lg:block relative aspect-[4/3] rounded-[var(--radius-xl)] overflow-hidden bg-white/[0.06] border border-white/10">
-            <div className="absolute inset-0 flex items-center justify-center p-10">
-              <svg
-                viewBox="0 0 320 200"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-full max-w-md"
-                aria-hidden="true"
-              >
-                {/* Road */}
-                <line x1="0" y1="170" x2="320" y2="170" stroke="white" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="8 8" />
-                {/* Trailer */}
-                <rect x="30" y="70" width="170" height="80" rx="6" fill="white" />
-                <rect x="40" y="80" width="150" height="60" rx="3" fill="#F1F4F6" />
-                <line x1="115" y1="80" x2="115" y2="140" stroke="#C3C3C3" strokeWidth="1.5" />
-                {/* Cab */}
-                <path d="M200 90 L260 90 L280 110 L280 150 L200 150 Z" fill="#2390AC" />
-                <path d="M210 100 L255 100 L268 116 L268 130 L210 130 Z" fill="#6FE4FF" opacity="0.7" />
-                {/* Wheels */}
-                <circle cx="70" cy="155" r="14" fill="#09242B" />
-                <circle cx="70" cy="155" r="6" fill="#2CB4D7" />
-                <circle cx="155" cy="155" r="14" fill="#09242B" />
-                <circle cx="155" cy="155" r="6" fill="#2CB4D7" />
-                <circle cx="240" cy="155" r="14" fill="#09242B" />
-                <circle cx="240" cy="155" r="6" fill="#2CB4D7" />
-                {/* Speed lines */}
-                <line x1="0" y1="55" x2="20" y2="55" stroke="white" strokeOpacity="0.5" strokeWidth="2" strokeLinecap="round" />
-                <line x1="0" y1="65" x2="14" y2="65" stroke="white" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
-          </div>
+                  {step.number}
+                </span>
+                <span className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-white">
+                  {step.icon}
+                </span>
+              </div>
+              <h3 className="text-[15px] font-bold text-white mb-1.5">
+                {step.title}
+              </h3>
+              <p className="text-[13px] text-white/75 leading-relaxed">
+                {step.description}
+              </p>
+            </article>
+          ))}
         </div>
       </div>
     </section>

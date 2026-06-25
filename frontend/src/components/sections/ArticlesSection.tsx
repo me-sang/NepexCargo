@@ -1,85 +1,79 @@
+import Image from "next/image";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
-const articles = [
+type Article = {
+  title: string;
+  excerpt: string;
+  date: string;
+  image: string;
+  imageAlt: string;
+};
+
+const articles: Article[] = [
   {
-    date: "April 20, 2026",
     title: "Cargo+ opens new logistics hub in Rotterdam",
     excerpt:
       "Expanding our European network with a new 40,000 m² distribution center near the Port of Rotterdam.",
-    tag: "Logistics",
-    bg: "linear-gradient(135deg, #09242B 0%, #1B7E96 100%)",
+    date: "April 20, 2026",
+    image: "/images/articles/article-1.jpg",
+    imageAlt: "Reach stacker lifting a container at a port terminal",
   },
   {
-    date: "May 20, 2026",
     title: "Hybrid fleet reaches 100 active vehicles across Europe",
     excerpt:
-      "Continuing our sustainability roadmap by integrating hybrid transport solutions to reduce emissions.",
-    tag: "Sustainability",
-    bg: "linear-gradient(135deg, #1B4D2E 0%, #2390AC 100%)",
+      "Cargo+ continues its sustainability roadmap by integrating hybrid transport solutions to reduce emissions.",
+    date: "May 20, 2026",
+    image: "/images/articles/article-2.jpg",
+    imageAlt: "Container truck on a highway",
   },
   {
-    date: "June 20, 2026",
     title: "New cross-border corridor connects Warsaw and Hamburg",
     excerpt:
       "Improved transit times and real-time customs tracking enhance regional logistics efficiency.",
-    tag: "Routes",
-    bg: "linear-gradient(135deg, #4A2A0E 0%, #2390AC 100%)",
+    date: "June 20, 2026",
+    image: "/images/articles/article-3.jpg",
+    imageAlt: "Reach stacker moving a container in a stacked container yard",
   },
 ];
 
 export function ArticlesSection() {
   return (
-    <section className="py-20 lg:py-24 bg-[var(--color-accent-soft)]">
+    <section className="py-20 lg:py-28 bg-[var(--color-accent-soft)]">
       <div className="container-content">
         <SectionHeader
           eyebrow="Articles"
           title="From the Nepex Cargo articles"
           description="Industry trends, shipping tips and product updates."
           align="center"
-          className="mb-12 mx-auto"
+          className="mb-14 mx-auto"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7">
           {articles.map((article) => (
             <article
               key={article.title}
-              className="group bg-white rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] hover:shadow-[var(--shadow-card-lg)] transition-shadow cursor-pointer"
+              className="bg-white rounded-[18px] p-4 lg:p-[18px] shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-lg)] transition-shadow cursor-pointer flex flex-col"
             >
-              {/* Image placeholder */}
-              <div
-                className="aspect-[16/10] relative overflow-hidden"
-                style={{ background: article.bg }}
-              >
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 opacity-20 mix-blend-overlay"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 40% 60%, rgba(255,255,255,0.4) 0%, transparent 60%)",
-                  }}
+              <div className="relative aspect-[16/11] overflow-hidden rounded-[12px] bg-[var(--color-border)]">
+                <Image
+                  src={article.image}
+                  alt={article.imageAlt}
+                  fill
+                  sizes="(min-width: 1024px) 380px, (min-width: 768px) 33vw, 100vw"
+                  className="object-cover"
                 />
-                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[var(--color-brand)] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-                  {article.tag}
-                </span>
               </div>
 
-              <div className="p-6">
-                <time className="text-[11px] text-[#7A8E96] font-medium tracking-wide uppercase">
-                  {article.date}
-                </time>
-                <h3 className="mt-2.5 text-[15px] font-bold text-[var(--color-text)] leading-snug group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
+              <div className="px-2 pt-5 pb-3 flex flex-col flex-1">
+                <h3 className="text-[18px] lg:text-[19px] font-bold text-[var(--color-text)] leading-snug line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="mt-2.5 text-[13px] text-[#56707A] leading-relaxed line-clamp-3">
+                <p className="mt-3 text-[14px] text-[#56707A] leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
-
-                <div className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--color-accent)] group-hover:gap-2.5 transition-all">
-                  Read article
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
+                <time className="mt-6 text-[14px] font-medium text-[var(--color-accent)]">
+                  {article.date}
+                </time>
               </div>
             </article>
           ))}

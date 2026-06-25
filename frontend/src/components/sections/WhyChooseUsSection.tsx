@@ -52,21 +52,12 @@ const features = [
 
 export function WhyChooseUsSection() {
   return (
-    <section className="relative bg-[var(--color-surface)] py-20 lg:py-28 overflow-hidden">
-      {/* Dotted world map pattern — anchored upper-center, fades into the section */}
+    <section className="relative bg-[var(--color-surface)] pt-20 lg:pt-24 pb-10 lg:pb-12 overflow-hidden">
+      {/* Dotted world map illustration — full-bleed behind heading and feature cards */}
       <div
         aria-hidden="true"
-        className="pointer-events-none select-none absolute inset-x-0 top-0 h-full opacity-[0.55]"
-        style={{
-          backgroundImage: "url('/svgs/earth-pattern.svg')",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center -40px",
-          backgroundSize: "min(1400px, 110%) auto",
-          maskImage:
-            "linear-gradient(180deg, #000 0%, #000 55%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(180deg, #000 0%, #000 55%, transparent 100%)",
-        }}
+        className="pointer-events-none select-none absolute inset-0 bg-no-repeat bg-center bg-cover"
+        style={{ backgroundImage: "url('/images/card-bg.png')" }}
       />
 
       <div className="relative z-10 container-content">
