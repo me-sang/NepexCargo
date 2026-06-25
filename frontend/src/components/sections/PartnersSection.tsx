@@ -1,67 +1,61 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
+/**
+ * Partner names from spec. Logos are placeholder wordmarks until real assets land.
+ * Card style: white bg, subtle border, no shadow (per spec).
+ */
 const partnersRow1 = [
-  { name: "Logistics Transportation", short: "LOGISTICS" },
-  { name: "Alphalead Express", short: "ALPHALEAD EXPRESS" },
-  { name: "Hegelmann", short: "HEGELMANN" },
-  { name: "MTL", short: "MTL" },
+  { name: "LOGISTICS Transportation", accent: "#1B7E96" },
+  { name: "ALPHALEAD EXPRESS", accent: "#1B7E96" },
+  { name: "HEGELMANN", accent: "#2390AC" },
+  { name: "MTL Multimodal", accent: "#1B7E96" },
 ];
 
 const partnersRow2 = [
-  { name: "Logline", short: "LOGLINE" },
-  { name: "ace logistics", short: "ace logistics" },
-  { name: "Alioth Spedycja", short: "ALIOTH SPEDYCJA" },
-  { name: "KJTT", short: "KJTT" },
-  { name: "FlyEx", short: "FlyEx" },
-  { name: "XCEL LogiSolutions", short: "XCEL LOGISOLUTIONS" },
+  { name: "LOGLINE", accent: "#ED6C30" },
+  { name: "ace logistics", accent: "#2CB4D7" },
+  { name: "ALIOTH SPEDYCJA", accent: "#2390AC" },
+  { name: "KJTT", accent: "#2390AC" },
+  { name: "FlyOx Shipping", accent: "#09242B" },
+  { name: "XCEL LOGISOLUTIONS", accent: "#1B7E96" },
 ];
 
-function PartnerLogo({ name, short }: { name: string; short: string }) {
+function PartnerCard({ name, accent }: { name: string; accent: string }) {
   return (
-    <div className="flex items-center justify-center px-4 py-4 bg-white rounded-xl border border-border hover:shadow-sm transition-shadow min-h-[72px]">
-      {/* swap with: <Image src={`/images/partners/${slug}.png`} alt={name} width={120} height={40} className="object-contain max-h-10" /> */}
-      <span className="text-sm font-bold text-dark text-center leading-tight">{short}</span>
+    <div className="flex items-center justify-center px-5 py-4 bg-white rounded-[var(--radius-md)] border border-[var(--color-border)] min-h-[64px]">
+      <span
+        className="text-[13px] sm:text-sm font-extrabold tracking-tight text-center leading-tight"
+        style={{ color: accent }}
+      >
+        {name}
+      </span>
     </div>
   );
 }
 
 export function PartnersSection() {
   return (
-    <section className="relative py-16 md:py-20 bg-white overflow-hidden">
-      {/* Decorative arc shapes */}
-      <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
-        <svg className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-[0.07]" viewBox="0 0 500 500" fill="none">
-          <circle cx="250" cy="250" r="240" stroke="#2CB4D7" strokeWidth="2" />
-          <circle cx="250" cy="250" r="180" stroke="#2CB4D7" strokeWidth="2" />
-          <circle cx="250" cy="250" r="120" stroke="#2CB4D7" strokeWidth="2" />
-        </svg>
-        <svg className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] opacity-[0.07]" viewBox="0 0 500 500" fill="none">
-          <circle cx="250" cy="250" r="240" stroke="#2CB4D7" strokeWidth="2" />
-          <circle cx="250" cy="250" r="180" stroke="#2CB4D7" strokeWidth="2" />
-          <circle cx="250" cy="250" r="120" stroke="#2CB4D7" strokeWidth="2" />
-        </svg>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 lg:py-24 bg-white">
+      <div className="container-content">
         <SectionHeader
-          subtitle="OUR PARTNERS"
+          eyebrow="Our Partners"
           title="We work with the best in the business"
           description="Air, sea and ground partners around the globe so you always have options."
           align="center"
-          className="mb-12"
+          className="mb-12 mx-auto"
         />
 
-        {/* Row 1 — 4 logos */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        {/* Row 1 — 4 larger partners */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4 mb-3 lg:mb-4">
           {partnersRow1.map((p) => (
-            <PartnerLogo key={p.name} name={p.name} short={p.short} />
+            <PartnerCard key={p.name} {...p} />
           ))}
         </div>
 
-        {/* Row 2 — 6 logos */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        {/* Row 2 — 6 smaller partners */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {partnersRow2.map((p) => (
-            <PartnerLogo key={p.name} name={p.name} short={p.short} />
+            <PartnerCard key={p.name} {...p} />
           ))}
         </div>
       </div>

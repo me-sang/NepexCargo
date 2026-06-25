@@ -15,18 +15,18 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-primary shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-[72px]">
-          <Logo variant="light" />
+    <nav className="relative z-50 bg-[var(--color-brand)] text-white">
+      <div className="container-content">
+        <div className="flex items-center justify-between h-[78px] gap-6">
+          <Logo />
 
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-7 lg:gap-10">
+          {/* Desktop nav links — centered, flex-1 */}
+          <div className="hidden lg:flex items-center gap-10 flex-1 justify-center">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-xs font-bold tracking-widest text-white/90 hover:text-white transition-colors duration-150"
+                className="text-[13px] font-semibold tracking-[0.12em] text-white/95 hover:text-white transition-colors"
               >
                 {link.label}
               </a>
@@ -34,38 +34,55 @@ export function Navbar() {
           </div>
 
           {/* Right controls */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Country selector */}
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/40 text-white text-xs font-semibold hover:border-white/70 transition-colors">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+          <div className="hidden lg:flex items-center gap-3 shrink-0">
+            {/* Country selector — single outlined pill */}
+            <button
+              type="button"
+              className="flex items-center gap-2 pl-3 pr-3.5 h-10 rounded-full border border-white/45 hover:border-white/85 transition-colors text-[13px] font-semibold text-white"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" />
               </svg>
-              Country
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 10l5 5 5-5z"/>
+              <span>Country</span>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+                <path d="M6 8.5L1.5 4h9z" />
               </svg>
             </button>
 
             {/* Login button */}
-            <button className="px-5 py-1.5 rounded-md bg-white text-dark text-sm font-semibold hover:bg-white/90 transition-colors">
+            <a
+              href="/login"
+              className="inline-flex items-center justify-center h-10 px-7 rounded-full text-[13px] font-semibold bg-white text-[var(--color-brand)] hover:bg-white/95 transition-colors"
+            >
               Login
-            </button>
+            </a>
           </div>
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-md text-white"
+            type="button"
+            className="lg:hidden p-2 -mr-2 text-white"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
@@ -74,22 +91,24 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden bg-primary-dark border-t border-white/10 py-4 px-2 space-y-1">
+          <div className="lg:hidden pb-4 space-y-1 border-t border-white/15">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="block px-4 py-2.5 text-sm font-bold tracking-wider text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="block px-2 py-3 text-[13px] font-semibold tracking-[0.12em] text-white/95 hover:text-white transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-3 px-4">
-              <button className="w-full py-2 rounded-md bg-white text-dark text-sm font-semibold">
-                Login
-              </button>
-            </div>
+            <a
+              href="/login"
+              className="block mt-2 px-2 py-3 text-[13px] font-semibold text-white"
+              onClick={() => setMobileOpen(false)}
+            >
+              Login →
+            </a>
           </div>
         )}
       </div>

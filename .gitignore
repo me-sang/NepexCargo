@@ -1,3 +1,15 @@
 .env
 node_modules
 dist
+
+# AI-tooling artifacts
+CLAUDE.md
+AGENTS.md
+.claude/
+.agents/
+skills-lock.json
+.cursor/
+.cursorrules
+.windsurfrules
+.aider*
+.continue/

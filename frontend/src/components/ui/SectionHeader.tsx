@@ -1,15 +1,12 @@
 type TextAlign = "left" | "center" | "right";
 
 interface SectionHeaderProps {
-  subtitle?: string;
+  eyebrow?: string;
   title: string;
   description?: string;
   align?: TextAlign;
-  titleClassName?: string;
-  subtitleClassName?: string;
-  descriptionClassName?: string;
-  className?: string;
   light?: boolean;
+  className?: string;
 }
 
 const alignClass: Record<TextAlign, string> = {
@@ -19,34 +16,26 @@ const alignClass: Record<TextAlign, string> = {
 };
 
 export function SectionHeader({
-  subtitle,
+  eyebrow,
   title,
   description,
   align = "center",
-  titleClassName = "",
-  subtitleClassName = "",
-  descriptionClassName = "",
-  className = "",
   light = false,
+  className = "",
 }: SectionHeaderProps) {
   return (
-    <div className={`flex flex-col gap-3 ${alignClass[align]} ${className}`}>
-      {subtitle && (
+    <div className={`flex flex-col gap-4 ${alignClass[align]} ${className}`}>
+      {eyebrow && (
         <span
-          className={`
-            inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase
-            bg-primary text-white
-            ${subtitleClassName}
-          `}
+          className="inline-flex items-center px-3.5 py-1 rounded-full text-[11px] font-semibold tracking-[0.16em] uppercase bg-[var(--color-accent)] text-white"
         >
-          {subtitle}
+          {eyebrow}
         </span>
       )}
       <h2
         className={`
-          text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight
-          ${light ? "text-white" : "text-dark"}
-          ${titleClassName}
+          text-3xl md:text-[2.25rem] lg:text-[2.5rem] font-extrabold leading-[1.1] tracking-tight max-w-3xl
+          ${light ? "text-white" : "text-[var(--color-text)]"}
         `}
       >
         {title}
@@ -54,9 +43,8 @@ export function SectionHeader({
       {description && (
         <p
           className={`
-            text-base leading-relaxed max-w-2xl
-            ${light ? "text-white/75" : "text-text-muted"}
-            ${descriptionClassName}
+            text-[15px] md:text-base leading-relaxed max-w-2xl
+            ${light ? "text-[var(--color-text-on-dark-muted)]" : "text-[#56707A]"}
           `}
         >
           {description}
