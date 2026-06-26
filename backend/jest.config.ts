@@ -15,6 +15,7 @@ const config: Config = {
     '^@config/(.*)$': '<rootDir>/src/config/$1',
     '^@common/(.*)$': '<rootDir>/src/common/$1',
     '^@controllers/(.*)$': '<rootDir>/src/controllers/$1',
+    '^@services$': '<rootDir>/src/services/index',
     '^@services/(.*)$': '<rootDir>/src/services/$1',
     '^@database/(.*)$': '<rootDir>/src/database/$1',
     '^@integrations/(.*)$': '<rootDir>/src/integrations/$1',

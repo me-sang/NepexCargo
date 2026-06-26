@@ -66,6 +66,33 @@ export class UserService {
       relations: ['roles', 'roles.permissions'],
     });
   }
+
+  async hasPermission(userId: string, permissionName: string): Promise<boolean> {
+    const user = await this.getUserById(userId);
+    return user.roles.some((role) =>
+      role.permissions?.some((perm) => perm.name === permissionName),
+    );
+  }
+
+  async hasAnyPermission(userId: string, permissionNames: string[]): Promise<boolean> {
+    const user = await this.getUserById(userId);
+    return user.roles.some((role) =>
+      role.permissions?.some((perm) => permissionNames.includes(perm.name)),
+    );
+  }
+
+  async hasAllPermissions(userId: string, permissionNames: string[]): Promise<boolean> {
+    const user = await this.getUserById(userId);
+    const userPermissions = new Set(
+      user.roles.flatMap((role) => role.permissions?.map((p) => p.name) || []),
+    );
+    return permissionNames.every((name) => userPermissions.has(name));
+  }
+
+  async getUserPermissions(userId: string): Promise<string[]> {
+    const user = await this.getUserById(userId);
+    return [...new Set(user.roles.flatMap((role) => role.permissions?.map((p) => p.name) || []))];
+  }
 }
 
 export const userService = new UserService();

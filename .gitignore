@@ -1,6 +1,7 @@
 .env
 node_modules
 dist
+envs
 
 # AI-tooling artifacts
 CLAUDE.md

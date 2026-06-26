@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc && cp .env dist/.env",
     "start": "node dist/server.js",
     "worker": "ts-node -r tsconfig-paths/register src/workers/worker.bootstrap.ts",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeders/index.ts",

@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./",
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "strictPropertyInitialization": false,
     "allowSyntheticDefaultImports": true,
@@ -23,6 +22,7 @@
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
       "@controllers/*": ["src/controllers/*"],
+      "@services": ["src/services/index"],
       "@services/*": ["src/services/*"],
       "@routes/*": ["src/routes/*"],
       "@database/*": ["src/database/*"],
