@@ -1,4 +1,8 @@
 import type { Config } from 'jest';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
 const config: Config = {
   preset: 'ts-jest',
@@ -6,7 +10,6 @@ const config: Config = {
   rootDir: '.',
   testMatch: ['**/tests/**/*.test.ts'],
   globalSetup: undefined,
-  setupFilesAfterFramework: [],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   moduleNameMapper: {
     '^@config/(.*)$': '<rootDir>/src/config/$1',
