@@ -6,7 +6,7 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="bg-[var(--color-surface)] pb-20 lg:pb-24">
+    <section className="bg-[var(--color-surface)] pt-2 pb-20 lg:pb-24">
       <div className="container-content">
         {/* Inset dark card with map-background photographic bg */}
         <div className="relative rounded-[var(--radius-xl)] overflow-hidden">
