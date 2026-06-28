@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Guide to Embedding Aramex's Rate Calculator</title>
+    <style>
+        :root {
+            --aramex-red: #e31837;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --bg-sidebar: #f4f5f7;
+            --bg-content: #ffffff;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar h1 {
+            color: var(--aramex-red);
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .sidebar h1 span {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: normal;
+            margin-top: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: block;
+            padding: 0.4rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-menu a:hover {
+            background-color: #e5e7eb;
+            color: var(--aramex-red);
+        }
+
+        .nav-submenu {
+            list-style: none;
+            padding-left: 1.5rem;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .nav-submenu a {
+            padding: 0.25rem 0.5rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content Styles */
+        .content {
+            flex: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            background-color: var(--bg-content);
+            scroll-behavior: smooth;
+        }
+
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--aramex-red);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 0; }
+        h2 { font-size: 1.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+        h3 { font-size: 1.25rem; color: #444; }
+
+        p { margin-bottom: 1rem; }
+        ul { margin-bottom: 1rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fbfbfc;
+        }
+        
+        .image-placeholder {
+            width: 100%;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            padding: 2rem;
+            text-align: center;
+            color: #64748b;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #d926a9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <h1>Aramex Developer <span>Rate Calculator API Documentation</span></h1>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="#version-history">Version History</a></li>
+                <li><a href="#getting-started">Getting Started: The Rate Calculator</a></li>
+                <li><a href="#xml-structure">1. Xml Structure Diagrams</a></li>
+                <li>
+                    <a href="#data-types">2. Data Type Element Description</a>
+                    <ul class="nav-submenu">
+                        <li><a href="#dt-client-info">2.1 Client Info</a></li>
+                        <li><a href="#dt-transaction">2.2 Transaction</a></li>
+                        <li><a href="#dt-address">2.3 Address</a></li>
+                        <li><a href="#dt-shipment-details">2.4 Shipment Details</a></li>
+                        <li><a href="#dt-date-time">2.5 Date Time</a></li>
+                        <li><a href="#dt-shipment-items">2.6 Shipment Items</a></li>
+                        <li><a href="#dt-attachment">2.7 Attachment</a></li>
+                        <li><a href="#dt-label-info">2.8 Label Info</a></li>
+                        <li><a href="#dt-dimensions">2.9 Dimensions</a></li>
+                        <li><a href="#dt-weight">2.10 Weight</a></li>
+                        <li><a href="#dt-money">2.11 Money</a></li>
+                        <li><a href="#dt-volume">2.12 Volume</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#response">3. Response</a>
+                    <ul class="nav-submenu">
+                        <li><a href="#res-transaction">3.1 Transaction</a></li>
+                        <li><a href="#res-has-errors">3.2 Has Errors</a></li>
+                        <li><a href="#res-notifications">3.3 List of Notifications</a></li>
+                        <li><a href="#res-total-amount">3.4 Total Amount</a></li>
+                    </ul>
+                </li>
+                <li><a href="#conditions">4. Rate Calculator Conditions</a></li>
+                <li><a href="#images-ui">5. Images of the Back-end User Interface</a></li>
+                <li>
+                    <a href="#appendices">Appendices</a>
+                    <ul class="nav-submenu">
+                        <li><a href="#app-a">A - Product Types</a></li>
+                        <li><a href="#app-b">B - Shipment Payment Methods</a></li>
+                        <li><a href="#app-c">C - Service Codes</a></li>
+                        <li><a href="#app-d">D - ISO Country Codes</a></li>
+                        <li><a href="#app-e">E - Currency Codes</a></li>
+                        <li><a href="#app-f">F - Error Codes and Messages</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <div class="content-container">
+            
+            <h1>Your Guide to Embedding Aramex's Rate Calculator</h1>
+
+            <section id="version-history">
+                <h2>Version History</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Change</th>
+                            <th>Effective Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Document Creation</td>
+                            <td>June 2011</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>New Sections: Rate Calculator conditions (page 20)</td>
+                            <td>1st of January 2013</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started: The Rate Calculator</h2>
+                <p>The Aramex Shipping APIs (Application Programing Interface) allows your system to communicate directly with our shipping and tracking system over the internet. Our API provides you with wide varieties of functionalities which enable customers to integrate with Aramex's system from their own systems in an automated way. The API provides a secure channel and can be called through encrypted HTTPS channel.</p>
+                <p>This Document contains a complete guide on how to use the Rate Calculator API, which is one of the main functionalities required by customers to start shipping. The Rate Calculator determines how much the customer will get charged for the delivery from the source of the product to the final destination.</p>
+                
+                <h3>Features</h3>
+                <ul>
+                    <li>The validation of User name and Password given by the client for a more secure access, while ensuring that your customer's privacy is not violated.</li>
+                    <li>A wider range of options for customers to provide full details about their shipments, enabling Aramex to calculate rates more accurately.</li>
+                    <li>Validation of address allows the service to prompt the customer for more information in case of inaccuracy or empty fields with our Address Validation Service.</li>
+                    <li>Provides asynchronous transmission, in case the customer would like to send and receive data asynchronously. In this case, customers need to provide a transaction ID of his own choice in the request which will be passed back in the reply.</li>
+                    <li>Simple processes in which a customer can fill basic information related to shipments and system will provide the rate.</li>
+                </ul>
+
+                <h3>Using Rate Service Calculator: How does it work?</h3>
+                <p>The Rates Calculator uses a Web Service Definition Language (WSDL) which is provided by Aramex, enabling developers to add reference to the web service in their code. A WSDL file will be available on aramex.com or can be provided by the Aramex Electronic Data Interchange (EDI) team. Please contact us for the WDSL files.</p>
+                <p>Once the developer adds the reference to the web service he will be able to build the request message, through the Rate Request XML, and invoke the service and get a reply message with the rates.</p>
+                <p>The user must be registered at Aramex with a valid user name and password. Sample Codes will be available in both VB and C# and PHP on aramex.com.</p>
+            </section>
+
+            <section id="xml-structure">
+                <h2>1. Xml Structure Diagrams</h2>
+                <p>XML request or reply messages have to be constructed as explained below. The Tables below show the structure, element, child element, semantics as well as the validation conditions in a Rate Request XML.</p>
+
+                <h3>Table 1: Rate Calculator Request Diagram and Description</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Diagram Element</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ClientInfo</td>
+                            <td>Type tns: ClientInfo</td>
+                            <td><strong>Purpose:</strong> For client Validation purposes.</td>
+                        </tr>
+                        <tr>
+                            <td>Transaction</td>
+                            <td>Type tns: Transaction</td>
+                            <td><strong>Purpose:</strong> For the customer to send any type of data such as identification data which will be sent back in the Reply, easier to track requests and transactions.</td>
+                        </tr>
+                        <tr>
+                            <td>OriginAddress</td>
+                            <td>Type tns: Address</td>
+                            <td><strong>Purpose:</strong> To identify the desired physical shipment origin location details and validates them to be a factor in rate calculation.</td>
+                        </tr>
+                        <tr>
+                            <td>DestinationAddress</td>
+                            <td>Type tns: Address</td>
+                            <td><strong>Purpose:</strong> To identify the desired shipment Destination location details and validates them to be a factor in rate calculation.</td>
+                        </tr>
+                        <tr>
+                            <td>ShipmentDetails</td>
+                            <td>Type tns: ShipmentDetails</td>
+                            <td><strong>Purpose:</strong> Several aspects about the shipment some required to be filled, other aspects are optional if the customer wished to include extra features.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="data-types">
+                <h2>2. Data Type Element Description</h2>
+                <p>Further details on child elements of the Rate Service Calculator and their attributes can be shown below.</p>
+                <ul>
+                    <li><strong>Element:</strong> Element Name</li>
+                    <li><strong>Data Type:</strong> The type of data that can be inserted into this field.</li>
+                    <li><strong>Required:</strong> Specifies three categories:
+                        <ul>
+                            <li><strong>M</strong> = Mandatory. This field must be filled in all cases.</li>
+                            <li><strong>O</strong> = Optional. This field may or may not be filled.</li>
+                            <li><strong>C</strong> = Conditional. This field may or may not be filled depending on another field being filled.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Length:</strong> The maximum number of characters allowed in this field.</li>
+                    <li><strong>Allowed Values:</strong> Specifies the accepted data by this field.</li>
+                </ul>
+
+                <h3 id="dt-client-info">2.1 Client Info</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Data Type</th><th>Required</th><th>Length</th><th>Allowed Values</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>UserName</td><td>Alphanumeric</td><td>M</td><td>50</td><td></td><td>A unique user name sent to the customer upon registration with http://www.aramex.com</td></tr>
+                        <tr><td>Password</td><td>Alphanumeric</td><td>M</td><td>50</td><td></td><td>A unique password to verify the user name, sent to the client upon registration.</td></tr>
+                        <tr><td>Version</td><td>Alphanumeric</td><td>M</td><td>4</td><td>V1.0</td><td>Based on the WSDL the customer is using to invoke the web service</td></tr>
+                        <tr><td>Account Entity</td><td>Character</td><td>C</td><td>3</td><td></td><td>Identification Code/Number for Transmitting Party.</td></tr>
+                        <tr><td>Account Number</td><td>Alphanumeric</td><td>O</td><td>50</td><td></td><td>The Customer's Account number provided by Aramex.</td></tr>
+                        <tr><td>Account PIN</td><td>Alphanumeric</td><td>C</td><td>50</td><td></td><td>A key that is given to account customers associated with the account number.</td></tr>
+                        <tr><td>Account Country Code</td><td>Character</td><td>C</td><td>2</td><td></td><td>Two Letter Code Identifying the Country. Refer to Appendix D.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-transaction">2.2 Transaction</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Data Type</th><th>Required</th><th>Length</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Reference 1 - 5</td><td>Alphanumeric</td><td>O</td><td>50</td><td>Any Details the Customer would like to add to be able to identify the transaction in the future.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-address">2.3 Address</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Data Type</th><th>Req</th><th>Len</th><th>Allowed</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Line1</td><td>String</td><td>M</td><td>50</td><td>> 3 chars</td><td>Additional Address information (building number, street).</td></tr>
+                        <tr><td>Line2 / Line3</td><td>String</td><td>O</td><td>50</td><td></td><td>Additional Address information.</td></tr>
+                        <tr><td>City</td><td>String</td><td>C</td><td>50</td><td></td><td>Address City. Required if post code is not given.</td></tr>
+                        <tr><td>StateOrProvinceCode</td><td>String</td><td>C</td><td>100</td><td></td><td>Required if The country code and city require a State/Province Code.</td></tr>
+                        <tr><td>Post Code</td><td>String</td><td>C</td><td>30</td><td></td><td>Postal Code, if available in the country code/city.</td></tr>
+                        <tr><td>Country Code</td><td>String</td><td>M</td><td>2</td><td></td><td>2-Letter Standard ISO Country Code (See Appendix D).</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-shipment-details">2.4 Shipment Details</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Type</th><th>Req</th><th>Len</th><th>Allowed Values</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Dimensions</td><td>Dimensions</td><td>O</td><td></td><td></td><td>Measurements required in calculating Chargeable Weight.</td></tr>
+                        <tr><td>NumberOfPieces</td><td>Integer</td><td>M</td><td>3</td><td>> 0, MAX=100</td><td>Number of shipment pieces</td></tr>
+                        <tr><td>Actual Weight</td><td>Weight</td><td>M</td><td>6</td><td></td><td>Total actual shipment weight.</td></tr>
+                        <tr><td>Product Group</td><td>String</td><td>M</td><td>3</td><td>EXP, DOM</td><td>EXP = Express, DOM = Domestic</td></tr>
+                        <tr><td>Product Type</td><td>String</td><td>M</td><td>3</td><td>OND (for DOM)</td><td>Specification of priority/time sensitivity (See App. A).</td></tr>
+                        <tr><td>Payment Type</td><td>String</td><td>M</td><td>1</td><td>P, C, 3</td><td>Method of payment (See App. B).</td></tr>
+                        <tr><td>Payment Options</td><td>String</td><td>C</td><td>4</td><td>ASCC, ARCC (Type C), CASH, ACCT, PPST, CRDT (Type P)</td><td>Based on Payment Type.</td></tr>
+                        <tr><td>Services</td><td>String</td><td>O</td><td>25</td><td></td><td>Additional services (comma separated). (See App. C).</td></tr>
+                        <tr><td>Description of Goods</td><td>String</td><td>M</td><td>100</td><td></td><td>Nature of shipment contents (e.g. Clothes).</td></tr>
+                        <tr><td>Goods Origin Country</td><td>String</td><td>M</td><td>2</td><td></td><td>Origin country of product (See App. D).</td></tr>
+                        <tr><td>CustomsValueAmount</td><td>Money</td><td>C</td><td></td><td></td><td>Value charged by destination customs (if Dutiable).</td></tr>
+                        <tr><td>CashOnDeliveryAmount</td><td>Money</td><td>C</td><td></td><td></td><td>Amount of Cash paid by receiver (if Service COD).</td></tr>
+                        <tr><td>Insurance Amount</td><td>Money</td><td>O</td><td></td><td></td><td>Insurance amount charged.</td></tr>
+                        <tr><td>CashAdditionalAmount</td><td>Money</td><td>O</td><td></td><td></td><td>Additional Cash for misc purposes.</td></tr>
+                        <tr><td>Collect Amount</td><td>Money</td><td>C</td><td></td><td></td><td>Transportation Charges to be collected from consignee.</td></tr>
+                        <tr><td>Items</td><td>List(Item)</td><td>O</td><td></td><td></td><td>Details of the Items within a shipment.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-date-time">2.5 Date Time</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Data Type</th><th>Required</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Shipping Date</td><td>Date</td><td>M</td><td>The date Aramex receives the shipment to be shipped out.</td></tr>
+                        <tr><td>Due Date</td><td>Date</td><td>M</td><td>The date specified for shipment to be delivered to the consignee.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-shipment-items">2.6 Shipment Items</h3>
+                <table>
+                    <thead>
+                        <tr><th>Element</th><th>Data Type</th><th>Req</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Package Type</td><td>String</td><td>C</td><td>Type of packaging, e.g. Cans, bottles.</td></tr>
+                        <tr><td>Weight</td><td>Weight</td><td>C</td><td>Total Weight of the Items</td></tr>
+                        <tr><td>Quantity</td><td>Integer</td><td>C</td><td>Number of items (Max=100)</td></tr>
+                        <tr><td>Comments</td><td>String</td><td>C</td><td>Additional Information about the items.</td></tr>
+                    </tbody>
+                </table>
+                
+                <h3 id="dt-attachment">2.7 Attachment</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>File Name:</strong> String (C)</td><td>The file name without its extension.</td></tr>
+                        <tr><td><strong>File Extension:</strong> String (C)</td><td>The extension of the file (any accepted).</td></tr>
+                        <tr><td><strong>File Contents:</strong> Byte (C)</td><td>Contents of the file (Max 4MB).</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-label-info">2.8 Label Info</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Report ID:</strong> Integer (M)</td><td>The Template of the report to be generated (Allowed: 9201).</td></tr>
+                        <tr><td><strong>Report Type:</strong> String (M)</td><td>Either "URL" or "RPT". URL by Default.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-dimensions">2.9 Dimensions</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Length / Width / Height:</strong> Double (C)</td><td>Format: 000.000. Max=100. If one is filled, all must be filled.</td></tr>
+                        <tr><td><strong>Unit:</strong> String (C)</td><td>Measurement Unit (CM or M).</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-weight">2.10 Weight</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Value:</strong> Double (M)</td><td>Format: 000.000. Max=100. Shipment weight.</td></tr>
+                        <tr><td><strong>Unit:</strong> String (O)</td><td>Unit of the weight (KG, LB).</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-money">2.11 Money</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Currency Code:</strong> String (C)</td><td>3-Letter Standard ISO Currency Code (See App. E). Must be USD for COD.</td></tr>
+                        <tr><td><strong>Value:</strong> Double (C)</td><td>Format: 000.000. Max=100. The Monetary value.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="dt-volume">2.12 Volume</h3>
+                <table>
+                    <tbody>
+                        <tr><td><strong>Value:</strong> Double (M)</td><td>Format: 000.000. Shipment Volume.</td></tr>
+                        <tr><td><strong>Unit:</strong> String (O)</td><td>Unit of the volume (Cm3, Inch3).</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="response">
+                <h2>3. Response</h2>
+                
+                <h3 id="res-transaction">3.1 Transaction</h3>
+                <p><strong>Reference 1 - 5:</strong> The Data entered by the customer in the Request process.</p>
+
+                <h3 id="res-has-errors">3.2 Has Errors</h3>
+                <p>If there is an error while processing the data entered in a certain field, this element will notify you immediately and further details can be read in the Notification element.</p>
+                <ul>
+                    <li><strong>True:</strong> An error is identified with your request data; you should fix it as identified in the Notification Message.</li>
+                    <li><strong>False:</strong> Error Free, your request was successful.</li>
+                </ul>
+
+                <h3 id="res-notifications">3.3 List of Notifications</h3>
+                <ul>
+                    <li><strong>Code:</strong> To Identify the notification category.</li>
+                    <li><strong>Message:</strong> Deeper description of the Notification.</li>
+                </ul>
+
+                <h3 id="res-total-amount">3.4 Total Amount (Calculated Rate)</h3>
+                <ul>
+                    <li><strong>Currency Code:</strong> Prepaid = Origin Currency, Collect = Destination Currency, Third Party = Currency of the Customer Account.</li>
+                    <li><strong>Amount:</strong> The Monetary Value.</li>
+                </ul>
+            </section>
+
+            <section id="conditions">
+                <h2>4. Rate Calculator Conditions</h2>
+                <p>The result retrieved from the rate calculator will depend on the following conditions:</p>
+                <ul>
+                    <li>If the account details are filled, rate is calculated according to that specified in the customer's account.</li>
+                    <li>If the account details are not filled, rate is calculated according to the public rate of the origin, given that the payment type is P.</li>
+                    <li>If the account details are not filled, rate is calculated according to the public rate of the destination, given that the payment type is C.</li>
+                </ul>
+            </section>
+
+            <section id="images-ui">
+                <h2>5. Images of the Back-end User Interface</h2>
+                
+                <h3>5.1 A Valid Request with Account Information</h3>
+                <div class="image-placeholder">
+                    [Image: Rate Calculator Client UI showing a populated ClientInfo XML tree with Account Number, PIN, Entity, and Country Code]
+                </div>
+                
+                <h3>5.2 A Valid Request without Account Information</h3>
+                <div class="image-placeholder">
+                    [Image: Rate Calculator Client UI showing a ClientInfo XML tree with empty Account fields, relying on public rates]
+                </div>
+            </section>
+
+            <section id="appendices">
+                <h2>Appendix: Aramex and General References</h2>
+
+                <h3 id="app-a">Appendix A - Product Types</h3>
+                <table>
+                    <thead>
+                        <tr><th>Product Type</th><th>Name</th><th>Dutiable</th><th>Full Description</th><th>Product Group</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>PDX</td><td>Priority Document Express</td><td>No</td><td>Urgent, time sensitive consignments containing printed matter</td><td>International Express</td></tr>
+                        <tr><td>PPX</td><td>Priority Parcel Express</td><td>Yes</td><td>Urgent, time sensitive consignments containing non-printed matter</td><td>International Express</td></tr>
+                        <tr><td>PLX</td><td>Priority Letter Express</td><td>No</td><td>Urgent consignments containing printed matter weight &lt; 0.5 kg</td><td>International Express</td></tr>
+                        <tr><td>DDX</td><td>Deferred Document Express</td><td>No</td><td>2nd Day Delivery consignments containing printed matter</td><td>International Express</td></tr>
+                        <tr><td>DPX</td><td>Deferred Parcel Express</td><td>Yes</td><td>2nd Day Delivery consignments containing non-printed matter</td><td>International Express</td></tr>
+                        <tr><td>GDX</td><td>Ground Document Express</td><td>No</td><td>Ground delivery consignments containing printed matter</td><td>International Express</td></tr>
+                        <tr><td>GPX</td><td>Ground Parcel Express</td><td>Yes</td><td>Ground Delivery consignments containing non-printed matter</td><td>International Express</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="app-b">Appendix B - Shipment Payment Methods</h3>
+                <table>
+                    <thead>
+                        <tr><th>Payment Method</th><th>Stands for</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>P</td><td>Prepaid</td><td>Transportation Charges payable by shipper</td></tr>
+                        <tr><td>C</td><td>Collect</td><td>Transportation Charges payable by consignee</td></tr>
+                        <tr><td>T</td><td>Third Party</td><td>Transportation Charges payable by third party. All 3rd party details must be filled.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="app-c">Appendix C - Service Codes</h3>
+                <table>
+                    <thead>
+                        <tr><th>Service Code</th><th>Description</th><th>Full Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>COD</td><td>Cash on Delivery</td><td>Receiver pays the cost of the goods</td></tr>
+                        <tr><td>FIRST</td><td>First Delivery</td><td>Committed delivery time at destination country.</td></tr>
+                        <tr><td>FRDOM</td><td>Free Domicile</td><td>Sender pays part/or all of customs charges; receiver doesn't pay.</td></tr>
+                        <tr><td>HFPU</td><td>Hold for pick up</td><td>Receiver picks up from an Aramex/Partner facility</td></tr>
+                        <tr><td>NOON</td><td>Noon Delivery</td><td>Committed delivery time BEFORE Noon at destination country.</td></tr>
+                        <tr><td>SIG</td><td>Signature Required</td><td>Physical receiver signature required upon delivery</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 id="app-d">Appendix D - ISO Country Codes (Sample)</h3>
+                <p><em>Standard 2-letter ISO Country Codes are used. Common examples include:</em></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9em; background: #f8fafc; padding: 1rem; border: 1px solid var(--border-color);">
+                    <div>AF - AFGHANISTAN</div><div>AL - ALBANIA</div>
+                    <div>DZ - ALGERIA</div><div>AU - AUSTRALIA</div>
+                    <div>BH - BAHRAIN</div><div>CA - CANADA</div>
+                    <div>EG - EGYPT</div><div>FR - FRANCE</div>
+                    <div>DE - GERMANY</div><div>IN - INDIA</div>
+                    <div>JO - JORDAN</div><div>SA - SAUDI ARABIA</div>
+                    <div>AE - UNITED ARAB EMIRATES</div><div>GB - UNITED KINGDOM</div>
+                    <div>US - UNITED STATES</div><div>ZW - ZIMBABWE</div>
+                </div>
+
+                <h3 id="app-e">Appendix E - Currency Codes (Sample)</h3>
+                <p><em>3-Letter Standard ISO Currency Codes are used. Common examples include:</em></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; font-size: 0.9em; background: #f8fafc; padding: 1rem; border: 1px solid var(--border-color);">
+                    <div>AED - Dirham</div><div>AUD - Australian Dollar</div><div>CAD - Canadian Dollar</div>
+                    <div>EUR - Euro</div><div>GBP - British Pound</div><div>INR - Indian Rupee</div>
+                    <div>JOD - Jordanian Dinar</div><div>SAR - Saudi Riyal</div><div>USD - US Dollar</div>
+                </div>
+
+                <h3 id="app-f">Appendix F - Error Codes and Messages</h3>
+                <table>
+                    <thead>
+                        <tr><th>Error Code</th><th>Error Message</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Missing Parameter Error</td><td>ClientInfo is empty / OriginAddress is empty / etc.</td></tr>
+                        <tr><td>ClientInfo - Login Error</td><td>Invalid username or password</td></tr>
+                        <tr><td>ClientInfo - Account Error</td><td>Invalid account information / Account is blocked</td></tr>
+                        <tr><td>OriginAddress - City Missing Value Error</td><td>City is empty</td></tr>
+                        <tr><td>ShipmentDetails - ActualWeight Missing</td><td>ActualWeight is empty</td></tr>
+                        <tr><td>CashOnDeliveryAmount - Value Error</td><td>Value is less than zero</td></tr>
+                        <tr><td>Origin Address Error</td><td>Any error messages returned by the address resolver service</td></tr>
+                    </tbody>
+                </table>
+
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>
