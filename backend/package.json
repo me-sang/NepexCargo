@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc && cp .env dist/.env",
+    "build": "tsc && tsc-alias && cp .env dist/.env",
     "start": "node dist/server.js",
     "worker": "ts-node -r tsconfig-paths/register src/workers/worker.bootstrap.ts",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeders/index.ts",
@@ -73,6 +73,7 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.0",
+    "tsc-alias": "^1.8.17",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.0"
   }
