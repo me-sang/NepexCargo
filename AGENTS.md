@@ -18,6 +18,8 @@
 
 6. **Keep docs current.** If you add/rename/remove a top-level folder, or change migrations/seeders/connection/run commands, **update [`README.md`](./README.md) in the same change.** A structural change with a stale README is incomplete.
 
+7. **Keep Swagger docs current.** The backend API is documented with `@asteasolutions/zod-to-openapi`. **Whenever you add, remove, or modify a route, request body, query/path param, or response shape, update `backend/src/docs/<feature>.docs.ts` in the same change.** Register new doc files in `backend/src/docs/index.ts`. See `backend/AGENTS.md` rule 6 for details.
+
 ## Scope-specific guides
 
 - Backend agents: [`backend/AGENTS.md`](./backend/AGENTS.md)
