@@ -15,4 +15,8 @@ export const userRepository = AppDataSource.getRepository(User).extend({
       relations: ['roles', 'roles.permissions'],
     });
   },
+
+  async findByResetTokenHash(resetTokenHash: string): Promise<User | null> {
+    return this.findOne({ where: { resetTokenHash } });
+  },
 });

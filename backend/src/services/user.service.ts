@@ -1,7 +1,10 @@
 import * as bcrypt from 'bcrypt';
+import { randomInt, randomBytes, createHash } from 'crypto';
 import { AppDataSource } from '@database/data-source';
 import { User, Role } from '@database/entities';
 import { BadRequestException, NotFoundException } from '@common/exceptions';
+import { userRepository } from '@database/repositories';
+import { emailProducer } from '@queues/producers/email.producer';
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
@@ -92,6 +95,74 @@ export class UserService {
   async getUserPermissions(userId: string): Promise<string[]> {
     const user = await this.getUserById(userId);
     return [...new Set(user.roles.flatMap((role) => role.permissions?.map((p) => p.name) || []))];
+  }
+
+  async forgotPassword(email: string): Promise<string> {
+    const dummyToken = randomBytes(32).toString('hex');
+
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user || !user.tenantId) {
+      return dummyToken;
+    }
+
+    const otp = String(randomInt(100000, 999999));
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    const rawToken = randomBytes(32).toString('hex');
+    const resetTokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otpHash = otpHash;
+    user.otpExpiresAt = otpExpiresAt;
+    user.resetTokenHash = resetTokenHash;
+    user.resetTokenExpiresAt = resetTokenExpiresAt;
+    await this.userRepository.save(user);
+
+    const html = `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto">
+        <h2>Password Reset</h2>
+        <p>Your one-time code is:</p>
+        <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#1a1a1a">${otp}</p>
+        <p>This code expires in <strong>10 minutes</strong>.</p>
+        <p style="color:#888;font-size:12px">If you did not request this, you can safely ignore this email.</p>
+      </div>
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await emailProducer.send({
+      to: user.email,
+      subject: 'Your password reset code', // updated in Task 5
+      html,
+      tenantId: user.tenantId,
+    } as any);
+
+    return rawToken;
+  }
+
+  async resetPassword(resetToken: string, otp: string, newPassword: string): Promise<void> {
+    const resetTokenHash = createHash('sha256').update(resetToken).digest('hex');
+    const user = await userRepository.findByResetTokenHash(resetTokenHash);
+
+    if (!user || !user.resetTokenExpiresAt || user.resetTokenExpiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (!user.otpHash || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, user.otpHash);
+    if (!isOtpValid) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otpHash = null;
+    user.otpExpiresAt = null;
+    user.resetTokenHash = null;
+    user.resetTokenExpiresAt = null;
+    await this.userRepository.save(user);
   }
 }
 
