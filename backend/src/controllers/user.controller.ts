@@ -91,3 +91,35 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
     next(error);
   }
 }
+
+export async function forgotPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { email } = req.body as { email: string };
+    const resetToken = await userService.forgotPassword(email);
+    ApiResponse.success(res, { resetToken });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resetPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { resetToken, otp, newPassword } = req.body as {
+      resetToken: string;
+      otp: string;
+      newPassword: string;
+    };
+    await userService.resetPassword(resetToken, otp, newPassword);
+    ApiResponse.success(res, { message: 'Password reset successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
