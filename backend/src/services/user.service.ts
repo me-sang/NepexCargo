@@ -105,7 +105,7 @@ export class UserService {
       return dummyToken;
     }
 
-    const otp = String(randomInt(100000, 999999));
+    const otp = String(randomInt(100000, 1000000));
     const otpHash = await bcrypt.hash(otp, 10);
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 

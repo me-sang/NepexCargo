@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
