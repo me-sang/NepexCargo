@@ -16,12 +16,15 @@ export class ResendEmailClient implements EmailClient {
   }
 
   async send(message: EmailMessage): Promise<void> {
-    await this.sdk.emails.send({
+    const { error } = await this.sdk.emails.send({
       from: `${message.fromName} <${message.fromEmail}>`,
       to: message.to,
       subject: message.subject,
       html: message.html,
     });
+    if (error) {
+      throw new Error(`Resend API error: ${error.message}`);
+    }
   }
 }
 
