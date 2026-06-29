@@ -5,12 +5,13 @@ import { logger } from '../../common/helpers/logger';
 export function registerShipmentHandlers(): void {
   appEvents.on(
     APP_EVENTS.SHIPMENT_CREATED,
-    async (payload: { shipmentId: string; email: string }) => {
+    async (payload: { shipmentId: string; email: string; tenantId: string }) => {
       logger.info(`Shipment created: ${payload.shipmentId}`);
       await emailProducer.send({
         to: payload.email,
-        templateId: 'shipment-confirmation',
-        variables: { shipmentId: payload.shipmentId },
+        subject: 'Shipment Confirmation',
+        html: `<p>Your shipment <strong>${payload.shipmentId}</strong> has been created successfully.</p>`,
+        tenantId: payload.tenantId,
       });
     },
   );

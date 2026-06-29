@@ -49,7 +49,7 @@ export class S3StorageService implements StorageDriver {
   }
 
   async getSignedUrl(key: string, expiresInSeconds = 3600): Promise<string> {
-    return "string///// to implement later"
+    return 'string///// to implement later';
   }
 
   async exists(key: string): Promise<boolean> {

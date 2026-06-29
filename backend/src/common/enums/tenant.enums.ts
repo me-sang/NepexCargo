@@ -73,6 +73,8 @@ export enum TenantConfigProvider {
   STRIPE = 'Stripe',
   PAYPAL = 'PayPal',
   // Email
+  RESEND = 'Resend',
+  SMTP = 'SMTP',
   SENDGRID = 'SendGrid',
   MAILGUN = 'Mailgun',
   // SMS

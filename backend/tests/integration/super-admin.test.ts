@@ -15,11 +15,11 @@ async function seedAdmin() {
 }
 
 function superAdminToken(id: string) {
-  return jwt.sign({ sub: id, type: 'super_admin' }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+  return jwt.sign({ sub: id, type: 'super_admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
 function tenantUserToken(id: string) {
-  return jwt.sign({ sub: id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+  return jwt.sign({ sub: id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
 describe('Super Admin Auth', () => {
@@ -30,7 +30,9 @@ describe('Super Admin Auth', () => {
   describe('POST /api/v1/admin/auth/login', () => {
     it('returns 200 and token on valid credentials', async () => {
       await seedAdmin();
-      const res = await api.post('/api/v1/admin/auth/login').send({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+      const res = await api
+        .post('/api/v1/admin/auth/login')
+        .send({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
       expect(res.status).toBe(200);
       expect(res.body.data.token).toBeDefined();
       expect(res.body.data.admin.email).toBe(ADMIN_EMAIL);
@@ -39,12 +41,16 @@ describe('Super Admin Auth', () => {
 
     it('returns 401 on wrong password', async () => {
       await seedAdmin();
-      const res = await api.post('/api/v1/admin/auth/login').send({ email: ADMIN_EMAIL, password: 'wrong' });
+      const res = await api
+        .post('/api/v1/admin/auth/login')
+        .send({ email: ADMIN_EMAIL, password: 'wrong' });
       expect(res.status).toBe(401);
     });
 
     it('returns 401 on unknown email', async () => {
-      const res = await api.post('/api/v1/admin/auth/login').send({ email: 'nobody@test.com', password: 'pass' });
+      const res = await api
+        .post('/api/v1/admin/auth/login')
+        .send({ email: 'nobody@test.com', password: 'pass' });
       expect(res.status).toBe(401);
     });
 
@@ -100,7 +106,9 @@ describe('Super Admin Auth', () => {
     });
 
     it('returns 401 with no token', async () => {
-      const res = await api.post('/api/v1/admin/auth/create').send({ email: 'x@x.com', password: 'pass12345' });
+      const res = await api
+        .post('/api/v1/admin/auth/create')
+        .send({ email: 'x@x.com', password: 'pass12345' });
       expect(res.status).toBe(401);
     });
 

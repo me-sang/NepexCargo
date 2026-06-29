@@ -235,11 +235,11 @@ export class CreateUsersRolesPermissions1715000000000 implements MigrationInterf
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop foreign keys
     const userRolesTable = await queryRunner.getTable('user_roles');
-    const userRolesForeignKeys = userRolesTable!.foreignKeys;
+    const userRolesForeignKeys = userRolesTable.foreignKeys;
     await queryRunner.dropForeignKeys('user_roles', userRolesForeignKeys);
 
     const rolePermissionsTable = await queryRunner.getTable('role_permissions');
-    const rolePermissionsForeignKeys = rolePermissionsTable!.foreignKeys;
+    const rolePermissionsForeignKeys = rolePermissionsTable.foreignKeys;
     await queryRunner.dropForeignKeys('role_permissions', rolePermissionsForeignKeys);
 
     // Drop tables

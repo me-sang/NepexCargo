@@ -11,9 +11,9 @@ import { Plan } from './plan.entity';
 /** Data type of the feature value, used to interpret featureValue correctly. */
 export enum PlanFeatureType {
   BOOLEAN = 'boolean', // e.g. custom_domain: true
-  NUMBER = 'number',   // e.g. max_users: 500
-  STRING = 'string',   // e.g. support_tier: "priority"
-  LIST = 'list',       // e.g. allowed_countries: ["US", "AE"]
+  NUMBER = 'number', // e.g. max_users: 500
+  STRING = 'string', // e.g. support_tier: "priority"
+  LIST = 'list', // e.g. allowed_countries: ["US", "AE"]
 }
 
 @Entity('plan_features')
