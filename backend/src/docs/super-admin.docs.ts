@@ -12,7 +12,12 @@ const SuperAdminLoginBody = registry.register(
 const CreateSuperAdminBody = registry.register(
   'CreateSuperAdminBody',
   createSuperAdminSchema.openapi({
-    example: { email: 'newadmin@example.com', password: 'securepass123', firstName: 'John', lastName: 'Doe' },
+    example: {
+      email: 'newadmin@example.com',
+      password: 'securepass123',
+      firstName: 'John',
+      lastName: 'Doe',
+    },
   }),
 );
 
@@ -39,7 +44,8 @@ const AuthTokenResponse = registry.register(
   }),
 );
 
-const SuccessData = (dataSchema: z.ZodTypeAny) => z.object({ success: z.literal(true), data: dataSchema });
+const SuccessData = (dataSchema: z.ZodTypeAny) =>
+  z.object({ success: z.literal(true), data: dataSchema });
 const ErrorResponse = z.object({ success: z.literal(false), message: z.string() });
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
@@ -51,8 +57,14 @@ registry.registerPath({
   summary: 'Super admin login',
   request: { body: { content: { 'application/json': { schema: SuperAdminLoginBody } } } },
   responses: {
-    200: { description: 'Login successful', content: { 'application/json': { schema: AuthTokenResponse } } },
-    401: { description: 'Invalid credentials', content: { 'application/json': { schema: ErrorResponse } } },
+    200: {
+      description: 'Login successful',
+      content: { 'application/json': { schema: AuthTokenResponse } },
+    },
+    401: {
+      description: 'Invalid credentials',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
   },
 });
 
@@ -63,8 +75,14 @@ registry.registerPath({
   summary: 'Get authenticated super admin profile',
   security: [{ BearerAuth: [] }],
   responses: {
-    200: { description: 'Current super admin', content: { 'application/json': { schema: SuccessData(SuperAdminResponse) } } },
-    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    200: {
+      description: 'Current super admin',
+      content: { 'application/json': { schema: SuccessData(SuperAdminResponse) } },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
   },
 });
 
@@ -76,8 +94,17 @@ registry.registerPath({
   security: [{ BearerAuth: [] }],
   request: { body: { content: { 'application/json': { schema: CreateSuperAdminBody } } } },
   responses: {
-    201: { description: 'Super admin created', content: { 'application/json': { schema: SuccessData(SuperAdminResponse) } } },
-    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
-    409: { description: 'Email already in use', content: { 'application/json': { schema: ErrorResponse } } },
+    201: {
+      description: 'Super admin created',
+      content: { 'application/json': { schema: SuccessData(SuperAdminResponse) } },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+    409: {
+      description: 'Email already in use',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
   },
 });

@@ -8,4 +8,9 @@ export const superAdminRoutes: Router = Router();
 
 superAdminRoutes.post('/auth/login', validate(loginSuperAdminSchema), login);
 superAdminRoutes.get('/auth/me', checkSuperAdmin(), me);
-superAdminRoutes.post('/auth/create', checkSuperAdmin(), validate(createSuperAdminSchema), createAdmin);
+superAdminRoutes.post(
+  '/auth/create',
+  checkSuperAdmin(),
+  validate(createSuperAdminSchema),
+  createAdmin,
+);

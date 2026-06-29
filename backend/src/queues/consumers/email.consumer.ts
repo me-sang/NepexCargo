@@ -23,7 +23,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
   const creds = config.credentials as { fromEmail: string; fromName: string };
 
   const client = createEmailClient({
-    provider: config.provider as TenantConfigProvider,
+    provider: config.provider,
     credentials: config.credentials,
   });
 

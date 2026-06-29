@@ -29,7 +29,7 @@ export class AddTenantAndPasswordResetToUsers260628120000001 implements Migratio
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('users');
 
-    const fk = table!.foreignKeys.find((f) => f.columnNames.includes('tenantId'));
+    const fk = table.foreignKeys.find((f) => f.columnNames.includes('tenantId'));
     if (fk) await queryRunner.dropForeignKey('users', fk);
 
     await queryRunner.dropIndex('users', 'IDX_users_resetTokenHash');

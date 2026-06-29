@@ -4,14 +4,14 @@ import { AppDataSource } from '../src/database/data-source';
 if (process.env.NODE_ENV !== 'test') {
   throw new Error(
     `Tests must run with NODE_ENV=test. Got "${process.env.NODE_ENV}". ` +
-      'Make sure .env.test exists and jest.config.ts loads it.'
+      'Make sure .env.test exists and jest.config.ts loads it.',
   );
 }
 
 if (!process.env.DB_NAME || process.env.DB_NAME === 'nepex_cargo_db') {
   throw new Error(
     'Tests are pointed at the development database (nepex_cargo_db). ' +
-      'Set DB_NAME to a dedicated test database in .env.test to avoid wiping dev data.'
+      'Set DB_NAME to a dedicated test database in .env.test to avoid wiping dev data.',
   );
 }
 

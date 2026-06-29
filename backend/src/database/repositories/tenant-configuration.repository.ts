@@ -2,7 +2,9 @@ import { AppDataSource } from '../data-source';
 import { TenantConfiguration } from '../entities';
 import { TenantConfigProvider, TenantConfigType } from '../../common/enums/tenant.enums';
 
-export const tenantConfigurationRepository = AppDataSource.getRepository(TenantConfiguration).extend({
+export const tenantConfigurationRepository = AppDataSource.getRepository(
+  TenantConfiguration,
+).extend({
   async findAllByTenant(tenantId: string): Promise<TenantConfiguration[]> {
     return this.find({ where: { tenantId }, order: { configType: 'ASC', priority: 'ASC' } });
   },

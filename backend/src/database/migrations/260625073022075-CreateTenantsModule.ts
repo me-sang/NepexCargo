@@ -204,9 +204,7 @@ export class CreateTenantsModule260625073022075 implements MigrationInterface {
             onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
-        indices: [
-          new TableIndex({ columnNames: ['tenantId'] }),
-        ],
+        indices: [new TableIndex({ columnNames: ['tenantId'] })],
       }),
       true,
     );
@@ -264,9 +262,7 @@ export class CreateTenantsModule260625073022075 implements MigrationInterface {
             onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
-        uniques: [
-          new TableUnique({ columnNames: ['tenantId', 'category', 'key'] }),
-        ],
+        uniques: [new TableUnique({ columnNames: ['tenantId', 'category', 'key'] })],
       }),
       true,
     );
@@ -407,9 +403,7 @@ export class CreateTenantsModule260625073022075 implements MigrationInterface {
             onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
-        uniques: [
-          new TableUnique({ columnNames: ['tenantId', 'configType', 'provider'] }),
-        ],
+        uniques: [new TableUnique({ columnNames: ['tenantId', 'configType', 'provider'] })],
       }),
       true,
     );
@@ -540,7 +534,7 @@ export class CreateTenantsModule260625073022075 implements MigrationInterface {
       'tenant_plans',
     ]) {
       const table = await queryRunner.getTable(tableName);
-      await queryRunner.dropForeignKeys(tableName, table!.foreignKeys);
+      await queryRunner.dropForeignKeys(tableName, table.foreignKeys);
     }
 
     // Drop tables in reverse creation order

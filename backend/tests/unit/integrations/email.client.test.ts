@@ -14,7 +14,15 @@ describe('createEmailClient', () => {
   it('returns SmtpEmailClient for SMTP provider', () => {
     const client = createEmailClient({
       provider: TenantConfigProvider.SMTP,
-      credentials: { host: 'smtp.test.com', port: 587, secure: false, user: 'u', password: 'p', fromEmail: 'n@e.com', fromName: 'App' },
+      credentials: {
+        host: 'smtp.test.com',
+        port: 587,
+        secure: false,
+        user: 'u',
+        password: 'p',
+        fromEmail: 'n@e.com',
+        fromName: 'App',
+      },
     });
     expect(client).toBeInstanceOf(SmtpEmailClient);
   });

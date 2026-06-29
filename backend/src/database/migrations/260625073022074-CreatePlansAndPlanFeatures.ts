@@ -1,10 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-  TableIndex,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex } from 'typeorm';
 
 export class CreatePlansAndPlanFeatures260625073022074 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -113,9 +107,7 @@ export class CreatePlansAndPlanFeatures260625073022074 implements MigrationInter
             default: 'CURRENT_TIMESTAMP',
           },
         ],
-        indices: [
-          new TableIndex({ columnNames: ['planId'] }),
-        ],
+        indices: [new TableIndex({ columnNames: ['planId'] })],
       }),
       true,
     );
@@ -134,7 +126,7 @@ export class CreatePlansAndPlanFeatures260625073022074 implements MigrationInter
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const planFeaturesTable = await queryRunner.getTable('plan_features');
-    await queryRunner.dropForeignKeys('plan_features', planFeaturesTable!.foreignKeys);
+    await queryRunner.dropForeignKeys('plan_features', planFeaturesTable.foreignKeys);
 
     await queryRunner.dropTable('plan_features');
     await queryRunner.dropTable('plans');
