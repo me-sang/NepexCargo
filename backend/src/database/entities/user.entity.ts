@@ -17,6 +17,7 @@ import { Tenant } from './tenant.entity';
 @Index(['email'], { unique: true })
 @Index(['status'])
 @Index(['resetTokenHash'])
+@Index(['emailVerifyTokenHash'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -47,6 +48,23 @@ export class User {
   @ManyToOne(() => Tenant, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'tenantId' })
   tenant: Tenant | null;
+
+  // ── Email verification ───────────────────────────────────────────────────────
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ nullable: true })
+  emailVerifyTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifyTokenExpiresAt: Date | null;
+
+  @Column({ nullable: true })
+  emailVerifyOtpHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifyOtpExpiresAt: Date | null;
 
   // ── Password reset ───────────────────────────────────────────────────────────
 

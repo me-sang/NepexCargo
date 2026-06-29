@@ -11,7 +11,12 @@ export class UserService {
   private userRepository = AppDataSource.getRepository(User);
   private roleRepository = AppDataSource.getRepository(Role);
 
-  async registerUser(email: string, password: string, firstName?: string, lastName?: string) {
+  async registerUser(
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<{ verifyEmailToken: string }> {
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       throw new BadRequestException('Email already in use');
@@ -24,15 +29,76 @@ export class UserService {
       throw new NotFoundException('Default user role');
     }
 
+    const otp = String(randomInt(100000, 1000000));
+    const otpHash = await bcrypt.hash(otp, 10);
+    const rawToken = randomBytes(32).toString('hex');
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
     const user = this.userRepository.create({
       email,
       password: hashedPassword,
       firstName,
       lastName,
       roles: [userRole],
+      isEmailVerified: false,
+      emailVerifyOtpHash: otpHash,
+      emailVerifyOtpExpiresAt: expiresAt,
+      emailVerifyTokenHash: tokenHash,
+      emailVerifyTokenExpiresAt: expiresAt,
     });
 
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    const html = `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto">
+        <h2>Verify your email</h2>
+        <p>Your one-time verification code is:</p>
+        <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#1a1a1a">${otp}</p>
+        <p>This code expires in <strong>10 minutes</strong>.</p>
+        <p style="color:#888;font-size:12px">If you did not create an account, you can safely ignore this email.</p>
+      </div>
+    `;
+
+    await emailProducer.send({
+      to: user.email,
+      subject: 'Verify your email',
+      html,
+      tenantId: user.tenantId,
+    });
+
+    return { verifyEmailToken: rawToken };
+  }
+
+  async verifyEmail(token: string, otp: string): Promise<User> {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const user = await userRepository.findByEmailVerifyTokenHash(tokenHash);
+
+    if (
+      !user ||
+      !user.emailVerifyTokenExpiresAt ||
+      user.emailVerifyTokenExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    if (!user.emailVerifyOtpHash || !user.emailVerifyOtpExpiresAt || user.emailVerifyOtpExpiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, user.emailVerifyOtpHash);
+    if (!isOtpValid) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerifyTokenHash = null;
+    user.emailVerifyTokenExpiresAt = null;
+    user.emailVerifyOtpHash = null;
+    user.emailVerifyOtpExpiresAt = null;
+    await this.userRepository.save(user);
+
+    return this.getUserById(user.id);
   }
 
   async getUserById(id: string) {
