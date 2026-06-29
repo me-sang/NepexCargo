@@ -22,4 +22,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    ...authConfig.callbacks,
+    jwt({ token, user }) {
+      if (user && "accessToken" in user && typeof user.accessToken === "string") {
+        token.accessToken = user.accessToken;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (typeof token.accessToken === "string") {
+        session.accessToken = token.accessToken;
+      }
+      return session;
+    },
+  },
 });

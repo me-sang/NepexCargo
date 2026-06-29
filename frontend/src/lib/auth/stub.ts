@@ -13,6 +13,7 @@ export const stubAuthService: AuthService = {
       id: email,
       email,
       name: email.split("@")[0],
+      accessToken: "stub",
     };
   },
 
@@ -21,6 +22,7 @@ export const stubAuthService: AuthService = {
       id: email,
       email,
       name: name || email.split("@")[0],
+      accessToken: "stub",
     };
   },
 
