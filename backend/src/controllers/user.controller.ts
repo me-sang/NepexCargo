@@ -106,6 +106,19 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
   }
 }
 
+export async function googleAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { idToken } = req.body as { idToken?: string };
+    if (!idToken) throw new UnauthorizedException('Missing idToken');
+    const user = await userService.loginWithGoogle(idToken);
+    const token = jwt.sign({ sub: user.id }, env.JWT_SECRET, { expiresIn: '7d' });
+    const { password: _, ...userDetails } = user;
+    ApiResponse.success(res, { user: userDetails, token });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function forgotPassword(
   req: Request,
   res: Response,

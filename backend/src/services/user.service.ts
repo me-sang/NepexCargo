@@ -1,11 +1,15 @@
 import * as bcrypt from 'bcrypt';
 import { randomInt, randomBytes, createHash } from 'crypto';
+import { OAuth2Client, type TokenPayload } from 'google-auth-library';
 import { AppDataSource } from '@database/data-source';
 import { User, Role } from '@database/entities';
-import { BadRequestException, NotFoundException } from '@common/exceptions';
+import { BadRequestException, NotFoundException, UnauthorizedException } from '@common/exceptions';
 import { userRepository } from '@database/repositories';
 import { emailProducer } from '@queues/producers/email.producer';
+import { env } from '@config/env.config';
 import { logger } from '@common/helpers/logger';
+
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
@@ -162,6 +166,49 @@ export class UserService {
   async getUserPermissions(userId: string): Promise<string[]> {
     const user = await this.getUserById(userId);
     return [...new Set(user.roles.flatMap((role) => role.permissions?.map((p) => p.name) || []))];
+  }
+
+  async loginWithGoogle(idToken: string): Promise<User> {
+    let payload: TokenPayload | undefined;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      throw new UnauthorizedException('Invalid Google token');
+    }
+
+    if (!payload?.email) {
+      throw new UnauthorizedException('Google token missing email');
+    }
+
+    let user = await this.userRepository.findOne({
+      where: { email: payload.email },
+      relations: ['roles', 'roles.permissions'],
+    });
+
+    if (!user) {
+      const userRole = await this.roleRepository.findOne({ where: { name: 'user' } });
+      if (!userRole) throw new NotFoundException('Default user role');
+
+      user = this.userRepository.create({
+        email: payload.email,
+        password: randomBytes(32).toString('hex'), // unusable placeholder — Google users can't use password login
+        firstName: payload.given_name ?? null,
+        lastName: payload.family_name ?? null,
+        isEmailVerified: true,
+        roles: [userRole],
+      });
+      await this.userRepository.save(user);
+      logger.info(`Created new user via Google OAuth: ${user.email}`);
+    } else if (!user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await this.userRepository.save(user);
+    }
+
+    return user;
   }
 
   async forgotPassword(email: string): Promise<string> {

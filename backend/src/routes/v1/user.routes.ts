@@ -6,6 +6,7 @@ import {
   registerUser,
   loginUser,
   me,
+  googleAuth,
   forgotPassword,
   resetPassword,
   verifyEmail,
@@ -15,6 +16,7 @@ export const userRoutes: Router = Router();
 
 userRoutes.post('/auth/register', registerUser);
 userRoutes.post('/auth/login', loginUser);
+userRoutes.post('/auth/google', googleAuth);
 userRoutes.get('/auth/me', checkPermission(), me);
 userRoutes.post('/auth/verify-email', validate(verifyEmailSchema), verifyEmail);
 userRoutes.post('/auth/forgot-password', validate(forgotPasswordSchema), forgotPassword);

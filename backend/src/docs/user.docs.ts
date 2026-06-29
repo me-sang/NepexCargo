@@ -111,6 +111,30 @@ registry.registerPath({
   },
 });
 
+const GoogleAuthBody = registry.register(
+  'GoogleAuthBody',
+  z.object({ idToken: z.string().min(1).openapi({ description: 'Google ID token from NextAuth' }) }),
+);
+
+registry.registerPath({
+  method: 'post',
+  path: '/auth/google',
+  tags: ['User — Auth'],
+  summary: 'Sign in / sign up with Google',
+  description: 'Verifies a Google ID token and returns a backend JWT. Creates the user account if it does not exist.',
+  request: { body: { content: { 'application/json': { schema: GoogleAuthBody } } } },
+  responses: {
+    200: {
+      description: 'Authenticated — returns user + backend JWT',
+      content: { 'application/json': { schema: UserWithTokenResponse } },
+    },
+    401: {
+      description: 'Invalid or expired Google token',
+      content: { 'application/json': { schema: ErrorResponse } },
+    },
+  },
+});
+
 registry.registerPath({
   method: 'post',
   path: '/auth/login',
