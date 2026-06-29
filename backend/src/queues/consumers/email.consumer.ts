@@ -8,6 +8,7 @@ import { createEmailClient, EmailService } from '@integrations/email';
 import { env } from '@config/env.config';
 
 async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
+  logger.info(`Job "email:send" is processing`, { jobId: job.id, to: job.data.to });
   const { to, subject, html, tenantId } = job.data;
 
   let fromEmail: string;
@@ -49,7 +50,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
 
 export function startEmailWorker(): Worker {
   const worker = new Worker(QUEUE_NAMES.EMAIL, processEmailJob, defaultQueueConfig);
-  worker.on('failed', (job, err) => logger.error(`Email job failed: ${job?.id}`, err));
-  worker.on('completed', (job) => logger.info(`Email job completed: ${job.id}`));
+  worker.on('failed', (job, err) => logger.error(`Job "email:send" failed`, { jobId: job?.id, error: err.message }));
+  worker.on('completed', (job) => logger.info(`Job "email:send" completed successfully`, { jobId: job.id }));
   return worker;
 }

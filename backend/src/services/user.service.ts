@@ -1,17 +1,26 @@
 import * as bcrypt from 'bcrypt';
 import { randomInt, randomBytes, createHash } from 'crypto';
+import { OAuth2Client, type TokenPayload } from 'google-auth-library';
 import { AppDataSource } from '@database/data-source';
 import { User, Role } from '@database/entities';
-import { BadRequestException, NotFoundException } from '@common/exceptions';
+import { BadRequestException, NotFoundException, UnauthorizedException } from '@common/exceptions';
 import { userRepository } from '@database/repositories';
 import { emailProducer } from '@queues/producers/email.producer';
+import { env } from '@config/env.config';
 import { logger } from '@common/helpers/logger';
+
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
   private roleRepository = AppDataSource.getRepository(Role);
 
-  async registerUser(email: string, password: string, firstName?: string, lastName?: string) {
+  async registerUser(
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<{ verifyEmailToken: string }> {
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       throw new BadRequestException('Email already in use');
@@ -24,15 +33,76 @@ export class UserService {
       throw new NotFoundException('Default user role');
     }
 
+    const otp = String(randomInt(100000, 1000000));
+    const otpHash = await bcrypt.hash(otp, 10);
+    const rawToken = randomBytes(32).toString('hex');
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
     const user = this.userRepository.create({
       email,
       password: hashedPassword,
       firstName,
       lastName,
       roles: [userRole],
+      isEmailVerified: false,
+      emailVerifyOtpHash: otpHash,
+      emailVerifyOtpExpiresAt: expiresAt,
+      emailVerifyTokenHash: tokenHash,
+      emailVerifyTokenExpiresAt: expiresAt,
     });
 
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    const html = `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto">
+        <h2>Verify your email</h2>
+        <p>Your one-time verification code is:</p>
+        <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#1a1a1a">${otp}</p>
+        <p>This code expires in <strong>10 minutes</strong>.</p>
+        <p style="color:#888;font-size:12px">If you did not create an account, you can safely ignore this email.</p>
+      </div>
+    `;
+
+    await emailProducer.send({
+      to: user.email,
+      subject: 'Verify your email',
+      html,
+      tenantId: user.tenantId,
+    });
+
+    return { verifyEmailToken: rawToken };
+  }
+
+  async verifyEmail(token: string, otp: string): Promise<User> {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const user = await userRepository.findByEmailVerifyTokenHash(tokenHash);
+
+    if (
+      !user ||
+      !user.emailVerifyTokenExpiresAt ||
+      user.emailVerifyTokenExpiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    if (!user.emailVerifyOtpHash || !user.emailVerifyOtpExpiresAt || user.emailVerifyOtpExpiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    const isOtpValid = await bcrypt.compare(otp, user.emailVerifyOtpHash);
+    if (!isOtpValid) {
+      throw new BadRequestException('Invalid or expired verification token');
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerifyTokenHash = null;
+    user.emailVerifyTokenExpiresAt = null;
+    user.emailVerifyOtpHash = null;
+    user.emailVerifyOtpExpiresAt = null;
+    await this.userRepository.save(user);
+
+    return this.getUserById(user.id);
   }
 
   async getUserById(id: string) {
@@ -96,6 +166,49 @@ export class UserService {
   async getUserPermissions(userId: string): Promise<string[]> {
     const user = await this.getUserById(userId);
     return [...new Set(user.roles.flatMap((role) => role.permissions?.map((p) => p.name) || []))];
+  }
+
+  async loginWithGoogle(idToken: string): Promise<User> {
+    let payload: TokenPayload | undefined;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      throw new UnauthorizedException('Invalid Google token');
+    }
+
+    if (!payload?.email) {
+      throw new UnauthorizedException('Google token missing email');
+    }
+
+    let user = await this.userRepository.findOne({
+      where: { email: payload.email },
+      relations: ['roles', 'roles.permissions'],
+    });
+
+    if (!user) {
+      const userRole = await this.roleRepository.findOne({ where: { name: 'user' } });
+      if (!userRole) throw new NotFoundException('Default user role');
+
+      user = this.userRepository.create({
+        email: payload.email,
+        password: randomBytes(32).toString('hex'), // unusable placeholder — Google users can't use password login
+        firstName: payload.given_name ?? null,
+        lastName: payload.family_name ?? null,
+        isEmailVerified: true,
+        roles: [userRole],
+      });
+      await this.userRepository.save(user);
+      logger.info(`Created new user via Google OAuth: ${user.email}`);
+    } else if (!user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await this.userRepository.save(user);
+    }
+
+    return user;
   }
 
   async forgotPassword(email: string): Promise<string> {

@@ -46,6 +46,16 @@ export const createPermissionSchema = z.object({
 
 export type CreatePermissionDTO = z.infer<typeof createPermissionSchema>;
 
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1),
+  otp: z
+    .string()
+    .length(6)
+    .regex(/^\d{6}$/, 'OTP must be 6 digits'),
+});
+
+export type VerifyEmailDTO = z.infer<typeof verifyEmailSchema>;
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
