@@ -30,11 +30,9 @@ export class SuperAdminService {
     admin.lastLoginIp = ip ?? null!;
     await superAdminRepository.save(admin);
 
-    const token = jwt.sign(
-      { sub: admin.id, type: 'super_admin' },
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] },
-    );
+    const token = jwt.sign({ sub: admin.id, type: 'super_admin' }, env.JWT_SECRET, {
+      expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+    });
 
     const { password: _, ...adminData } = admin;
     return { admin: adminData, token };

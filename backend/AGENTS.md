@@ -11,12 +11,17 @@
    - Services: all business logic, exported as a singleton. **No `req`/`res`.**
    - Mount every new router in `src/routes/v1/index.ts` (served under `/api/v1`).
 
-3. **Use path aliases** (`@config/*`, `@common/*`, `@controllers/*`, `@services/*`, `@routes/*`, `@database/*`, `@integrations/*`, `@queues/*`, `@workers/*`, `@jobs/*`, `@events/*`, `@storage/*`) — not long relative paths.
+3. **Use path aliases** (`@config/*`, `@common/*`, `@controllers/*`, `@services/*`, `@routes/*`, `@database/*`, `@integrations/*`, `@queues/*`, `@workers/*`, `@jobs/*`, `@events/*`, `@storage/*`, `@docs/*`) — not long relative paths.
 
 4. **Config & env.** Add/validate every env var in `src/config/env.config.ts`, add it to `.env.example`, and read it via `env.*` (never `process.env` directly).
 
 5. **Database.** Import the shared `AppDataSource` (or a repository); never construct a new `DataSource`. `synchronize`/`migrationsRun` are off — **schema changes only via migrations.** Never edit an applied migration; add a new one with a reversible `down()`. Keep seeders idempotent and registered in `src/database/seeders/index.ts`.
 
-6. **Before committing:** `pnpm format:write && pnpm lint:fix && pnpm typecheck && pnpm test`.
+6. **Keep Swagger docs current.** API docs use `@asteasolutions/zod-to-openapi`. Route definitions live in `src/docs/` — one file per route group (e.g. `super-admin.docs.ts`, `user.docs.ts`).
+   - **Any time you add, remove, or change a route, request body, query param, path param, or response shape — update the corresponding `src/docs/*.docs.ts` file in the same change.** A route change without a docs update is an incomplete change.
+   - New route groups must be imported (for side effects) in `src/docs/index.ts`.
+   - The Swagger UI is served at `GET /api/docs` (dev/staging only); raw spec at `GET /api/docs.json`.
 
-7. **Keep the root README current** when you change folders, migrations, seeders, the connection/pool, integrations, queues, or commands.
+7. **Before committing:** `pnpm format:write && pnpm lint:fix && pnpm typecheck && pnpm test`.
+
+8. **Keep the root README current** when you change folders, migrations, seeders, the connection/pool, integrations, queues, or commands.

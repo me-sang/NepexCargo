@@ -1,10 +1,11 @@
 import { getQueue } from '../queue.factory';
-import { QUEUE_NAMES } from '../../config/queue.config';
+import { QUEUE_NAMES } from '@config/queue.config';
 
 export interface EmailJobData {
   to: string;
-  templateId: string;
-  variables: Record<string, unknown>;
+  subject: string;
+  html: string;
+  tenantId: string;
 }
 
 export const emailProducer = {

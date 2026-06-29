@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
 import { Tenant } from './tenant.entity';
 
 @Entity('tenant_usage')

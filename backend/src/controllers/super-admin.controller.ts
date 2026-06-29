@@ -25,7 +25,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 
 export async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const admin = await superAdminService.getById(req.su!.id);
+    const admin = await superAdminService.getById(req.su.id);
     const { password: _, ...adminData } = admin;
     ApiResponse.success(res, adminData);
   } catch (error) {

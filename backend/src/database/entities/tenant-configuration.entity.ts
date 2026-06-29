@@ -48,7 +48,6 @@ export class TenantConfiguration {
   @Column({ default: 0 })
   priority: number;
 
-
   @CreateDateColumn()
   createdAt: Date;
 
