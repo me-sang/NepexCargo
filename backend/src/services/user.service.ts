@@ -5,6 +5,7 @@ import { User, Role } from '@database/entities';
 import { BadRequestException, NotFoundException } from '@common/exceptions';
 import { userRepository } from '@database/repositories';
 import { emailProducer } from '@queues/producers/email.producer';
+import { logger } from '@common/helpers/logger';
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
@@ -101,7 +102,8 @@ export class UserService {
     const dummyToken = randomBytes(32).toString('hex');
 
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user || !user.tenantId) {
+    if (!user) {
+      logger.warn(`Forgot password requested for non-existent user or user without tenant: ${email}`);
       return dummyToken;
     }
 
@@ -144,6 +146,7 @@ export class UserService {
     const user = await userRepository.findByResetTokenHash(resetTokenHash);
 
     if (!user || !user.resetTokenExpiresAt || user.resetTokenExpiresAt < new Date()) {
+      logger.warn(`Reset password requested with invalid or expired token`);
       throw new BadRequestException('Invalid or expired reset token');
     }
 

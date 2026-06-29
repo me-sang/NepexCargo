@@ -15,6 +15,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
   let client: ReturnType<typeof createEmailClient>;
 
   if (env.SOURCE_EMAIL === 'env') {
+    logger.info(`Using default email configuration from environment variables`);
     // Temporary fallback: use Resend key from environment variables
     fromEmail = env.RESEND_FROM_EMAIL;
     fromName = env.RESEND_FROM_NAME;
