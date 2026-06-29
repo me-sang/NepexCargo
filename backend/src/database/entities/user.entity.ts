@@ -15,6 +15,7 @@ import { Tenant } from './tenant.entity';
 
 @Entity('users')
 @Index(['email'], { unique: true })
+@Index(['googleId'], { unique: true, where: '"googleId" IS NOT NULL' })
 @Index(['status'])
 @Index(['resetTokenHash'])
 @Index(['emailVerifyTokenHash'])
@@ -24,6 +25,9 @@ export class User {
 
   @Column()
   email: string;
+
+  @Column({ nullable: true })
+  googleId: string | null;
 
   @Column()
   password: string;

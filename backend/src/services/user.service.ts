@@ -185,7 +185,7 @@ export class UserService {
     }
 
     let user = await this.userRepository.findOne({
-      where: { email: payload.email },
+      where: [{ googleId: payload.sub }, { email: payload.email }],
       relations: ['roles', 'roles.permissions'],
     });
 
@@ -195,7 +195,8 @@ export class UserService {
 
       user = this.userRepository.create({
         email: payload.email,
-        password: randomBytes(32).toString('hex'), // unusable placeholder — Google users can't use password login
+        googleId: payload.sub,
+        password: randomBytes(32).toString('hex'),
         firstName: payload.given_name ?? null,
         lastName: payload.family_name ?? null,
         isEmailVerified: true,
@@ -203,9 +204,17 @@ export class UserService {
       });
       await this.userRepository.save(user);
       logger.info(`Created new user via Google OAuth: ${user.email}`);
-    } else if (!user.isEmailVerified) {
-      user.isEmailVerified = true;
-      await this.userRepository.save(user);
+    } else {
+      let changed = false;
+      if (!user.googleId) {
+        user.googleId = payload.sub;
+        changed = true;
+      }
+      if (!user.isEmailVerified) {
+        user.isEmailVerified = true;
+        changed = true;
+      }
+      if (changed) await this.userRepository.save(user);
     }
 
     return user;
