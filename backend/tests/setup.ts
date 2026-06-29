@@ -15,14 +15,24 @@ if (!process.env.DB_NAME || process.env.DB_NAME === 'nepex_cargo_db') {
   );
 }
 
-beforeAll(async () => {
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
-});
+// Unit tests do not require a database connection.
+// Skip DB init when running only tests under tests/unit/.
+const isUnitOnly =
+  process.env.JEST_WORKER_ID !== undefined &&
+  (expect as unknown as { getState: () => { testPath?: string } })
+    .getState()
+    ?.testPath?.includes('/tests/unit/') === true;
 
-afterAll(async () => {
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
-  }
-});
+if (!isUnitOnly) {
+  beforeAll(async () => {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+    }
+  });
+
+  afterAll(async () => {
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
+  });
+}
