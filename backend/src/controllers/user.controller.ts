@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '@config/env.config';
 import { userService } from '@services/user.service';
 import { ApiResponse } from '@common/helpers/api-response.helper';
+import { UnauthorizedException } from '@common/exceptions';
 import { logger } from '@common/helpers/logger';
 
 /**
@@ -37,11 +38,16 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
   try {
     const { email, password } = req.body;
 
-    const user = await userService.getUserByEmail(email);
-    const isValidPassword = await userService.validatePassword(password, user.password);
+    let user;
+    try {
+      user = await userService.getUserByEmail(email);
+    } catch {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
+    const isValidPassword = await userService.validatePassword(password, user.password);
     if (!isValidPassword) {
-      throw new Error('Invalid password');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const token = jwt.sign({ sub: user.id }, env.JWT_SECRET, { expiresIn: '7d' });
