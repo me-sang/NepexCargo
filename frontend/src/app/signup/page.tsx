@@ -1,8 +1,10 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SignupCard } from "@/components/sections/SignupCard";
+import { redirectIfAuthed } from "@/lib/redirect-if-authed";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  await redirectIfAuthed();
   return (
     <>
       <Navbar />

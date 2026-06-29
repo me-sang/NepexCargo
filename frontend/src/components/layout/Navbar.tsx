@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import { Logo } from "@/components/ui/Logo";
+import { UserMenu } from "./UserMenu";
 
 const navLinks = [
   { label: "HOME", href: "/" },
@@ -13,6 +15,8 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { status } = useSession();
+  const isAuthed = status === "authenticated";
 
   return (
     <nav className="relative z-50 bg-[var(--color-brand)] text-white">
@@ -60,13 +64,19 @@ export function Navbar() {
               </svg>
             </button>
 
-            {/* Login button */}
-            <a
-              href="/login"
-              className="inline-flex items-center justify-center h-10 px-7 rounded-full text-[13px] font-semibold bg-white text-[var(--color-brand)] hover:bg-white/95 transition-colors"
-            >
-              Login
-            </a>
+            {/* Auth slot — width reserved during session-loading to avoid jump */}
+            {status === "loading" ? (
+              <div className="h-10 w-[110px]" aria-hidden="true" />
+            ) : isAuthed ? (
+              <UserMenu />
+            ) : (
+              <a
+                href="/login"
+                className="inline-flex items-center justify-center h-10 px-7 rounded-full text-[13px] font-semibold bg-white text-[var(--color-brand)] hover:bg-white/95 transition-colors"
+              >
+                Login
+              </a>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -102,13 +112,26 @@ export function Navbar() {
                 {link.label}
               </a>
             ))}
-            <a
-              href="/login"
-              className="block mt-2 px-2 py-3 text-[13px] font-semibold text-white"
-              onClick={() => setMobileOpen(false)}
-            >
-              Login →
-            </a>
+            {isAuthed ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  void signOut({ callbackUrl: "/" });
+                }}
+                className="block w-full text-left mt-2 px-2 py-3 text-[13px] font-semibold text-white"
+              >
+                Sign out →
+              </button>
+            ) : (
+              <a
+                href="/login"
+                className="block mt-2 px-2 py-3 text-[13px] font-semibold text-white"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login →
+              </a>
+            )}
           </div>
         )}
       </div>
