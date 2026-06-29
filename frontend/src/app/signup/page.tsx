@@ -3,8 +3,13 @@ import { Footer } from "@/components/layout/Footer";
 import { SignupCard } from "@/components/sections/SignupCard";
 import { redirectIfAuthed } from "@/lib/redirect-if-authed";
 
-export default async function SignupPage() {
-  await redirectIfAuthed();
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  const { callbackUrl } = await searchParams;
+  await redirectIfAuthed(callbackUrl);
   return (
     <>
       <Navbar />

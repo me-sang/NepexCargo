@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { AuthCenteredShell } from "./AuthCenteredShell";
@@ -155,6 +156,15 @@ export function OtpForm() {
         >
           Continue
         </button>
+
+        <p className="text-center text-[13px] text-[var(--color-text-body)]/55">
+          <Link
+            href="/forgot-password"
+            className="hover:text-[var(--color-text)] underline underline-offset-2"
+          >
+            Start over
+          </Link>
+        </p>
       </form>
     </AuthCenteredShell>
   );

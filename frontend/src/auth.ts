@@ -5,8 +5,15 @@ import Google from "next-auth/providers/google";
 import { authConfig } from "./auth.config";
 import { authService } from "@/lib/auth";
 
+// Backend JWT expires after 7 days — keep the Auth.js session in sync so the
+// cookie and the accessToken it carries die together (avoids silent backend
+// 401s after day 7 while the FE still thinks the user is signed in).
+const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  session: { strategy: "jwt", maxAge: SEVEN_DAYS_SECONDS },
+  jwt: { maxAge: SEVEN_DAYS_SECONDS },
   providers: [
     Google,
     Credentials({

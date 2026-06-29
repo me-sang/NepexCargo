@@ -39,7 +39,10 @@ async function postAuth(path: string, body: unknown): Promise<Response> {
 export const backendAuthService: AuthService = {
   async login({ email, password }) {
     const res = await postAuth("/auth/login", { email, password });
-    if (res.status === 401) return null;
+    // Any 4xx is a failed credential attempt — return null per the Credentials
+    // provider contract. (Backend currently returns 404 "User not found" rather
+    // than the 401 promised in Swagger; treat the whole 4xx range as "no.")
+    if (res.status >= 400 && res.status < 500) return null;
     const json = (await res.json().catch(() => null)) as AuthPayload | null;
     if (!res.ok || !json?.success || !json.data) {
       throw new Error(json?.message ?? "Login failed");

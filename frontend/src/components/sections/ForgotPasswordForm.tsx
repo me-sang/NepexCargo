@@ -26,14 +26,16 @@ export function ForgotPasswordForm() {
         body: JSON.stringify({ email }),
       });
       const json = (await res.json().catch(() => null)) as
-        | { ok?: boolean; resetToken?: string }
+        | { ok?: boolean; resetToken?: string; error?: string }
         | null;
-      if (!res.ok || !json?.ok || !json.resetToken) throw new Error("Failed");
+      if (!res.ok || !json?.ok || !json.resetToken) {
+        throw new Error(json?.error ?? "Could not send code.");
+      }
       sessionStorage.setItem("nepex.reset.email", email);
       sessionStorage.setItem("nepex.reset.token", json.resetToken);
       router.push("/forgot-password/verify");
-    } catch {
-      setError("Could not send code. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send code.");
       setSubmitting(false);
     }
   }

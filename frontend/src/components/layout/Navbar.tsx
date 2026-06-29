@@ -15,8 +15,9 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isAuthed = status === "authenticated";
+  const user = session?.user;
 
   return (
     <nav className="relative z-50 bg-[var(--color-brand)] text-white">
@@ -113,16 +114,33 @@ export function Navbar() {
               </a>
             ))}
             {isAuthed ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  void signOut({ callbackUrl: "/" });
-                }}
-                className="block w-full text-left mt-2 px-2 py-3 text-[13px] font-semibold text-white"
-              >
-                Sign out →
-              </button>
+              <>
+                <div className="mt-3 px-2 py-3 border-t border-white/15">
+                  <div className="flex items-center gap-3">
+                    <span className="h-9 w-9 rounded-full bg-white text-[var(--color-brand)] inline-flex items-center justify-center font-bold text-[14px]">
+                      {(user?.name ?? user?.email ?? "U").trim().charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[14px] font-semibold text-white truncate">
+                        {user?.name ?? "Account"}
+                      </p>
+                      {user?.email && (
+                        <p className="text-[12px] text-white/70 truncate">{user.email}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    void signOut({ callbackUrl: "/" });
+                  }}
+                  className="block w-full text-left px-2 py-3 text-[13px] font-semibold text-white"
+                >
+                  Sign out →
+                </button>
+              </>
             ) : (
               <a
                 href="/login"
