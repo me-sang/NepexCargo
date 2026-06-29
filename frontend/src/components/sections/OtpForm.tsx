@@ -14,14 +14,13 @@ import { AuthCenteredShell } from "./AuthCenteredShell";
 import { EnvelopeSolidIcon } from "@/components/ui/AuthIcons";
 import { useSessionItem } from "@/lib/use-session-item";
 
-const LENGTH = 4;
+const LENGTH = 6;
 
 export function OtpForm() {
   const router = useRouter();
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const email = useSessionItem("nepex.reset.email");
-  const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,11 +65,16 @@ export function OtpForm() {
     setResending(true);
     setError(null);
     try {
-      await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; resetToken?: string }
+        | null;
+      if (!res.ok || !json?.ok || !json.resetToken) throw new Error("Failed");
+      sessionStorage.setItem("nepex.reset.token", json.resetToken);
     } catch {
       setError("Could not resend the code. Please try again.");
     } finally {
@@ -78,28 +82,16 @@ export function OtpForm() {
     }
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const code = digits.join("");
     if (code.length !== LENGTH) {
-      setError("Please enter all 4 digits.");
+      setError("Please enter all 6 digits.");
       return;
     }
-    setSubmitting(true);
     setError(null);
-    try {
-      const res = await fetch("/api/auth/forgot-password/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      sessionStorage.setItem("nepex.reset.code", code);
-      router.push("/forgot-password/reset");
-    } catch {
-      setError("Invalid or expired code.");
-      setSubmitting(false);
-    }
+    sessionStorage.setItem("nepex.reset.otp", code);
+    router.push("/forgot-password/reset");
   }
 
   return (
@@ -117,7 +109,7 @@ export function OtpForm() {
       contentWidthClass="max-w-[460px]"
     >
       <form onSubmit={handleSubmit} className="space-y-7">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
           {digits.map((d, i) => (
             <input
               key={i}
@@ -132,7 +124,7 @@ export function OtpForm() {
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className={`h-14 w-14 text-center text-[1.5rem] font-bold rounded-[var(--radius-md)] bg-white border text-[var(--color-text)] focus:outline-none transition-colors ${
+              className={`h-12 w-12 sm:h-14 sm:w-14 text-center text-[1.5rem] font-bold rounded-[var(--radius-md)] bg-white border text-[var(--color-text)] focus:outline-none transition-colors ${
                 d ? "border-[var(--color-accent)]" : "border-[var(--color-border)]"
               } focus:border-[var(--color-accent)]`}
             />
@@ -159,10 +151,9 @@ export function OtpForm() {
 
         <button
           type="submit"
-          disabled={submitting}
           className="w-full h-12 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white font-semibold text-[15px] hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-60"
         >
-          {submitting ? "Verifying…" : "Continue"}
+          Continue
         </button>
       </form>
     </AuthCenteredShell>

@@ -6,6 +6,13 @@ export async function POST(req: Request) {
   if (!body?.email) {
     return NextResponse.json({ error: "Missing email" }, { status: 400 });
   }
-  await authService.sendResetCode(body.email);
-  return NextResponse.json({ ok: true });
+  try {
+    const { resetToken } = await authService.sendResetCode(body.email);
+    return NextResponse.json({ ok: true, resetToken });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not send code" },
+      { status: 400 },
+    );
+  }
 }
