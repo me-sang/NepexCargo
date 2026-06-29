@@ -129,13 +129,12 @@ export class UserService {
       </div>
     `;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await emailProducer.send({
       to: user.email,
-      subject: 'Your password reset code', // updated in Task 5
+      subject: 'Your password reset code',
       html,
       tenantId: user.tenantId,
-    } as any);
+    });
 
     return rawToken;
   }
