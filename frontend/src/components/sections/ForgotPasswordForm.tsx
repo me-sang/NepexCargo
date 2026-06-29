@@ -25,11 +25,17 @@ export function ForgotPasswordForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      if (!res.ok) throw new Error("Failed");
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; resetToken?: string; error?: string }
+        | null;
+      if (!res.ok || !json?.ok || !json.resetToken) {
+        throw new Error(json?.error ?? "Could not send code.");
+      }
       sessionStorage.setItem("nepex.reset.email", email);
+      sessionStorage.setItem("nepex.reset.token", json.resetToken);
       router.push("/forgot-password/verify");
-    } catch {
-      setError("Could not send code. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send code.");
       setSubmitting(false);
     }
   }
@@ -72,7 +78,7 @@ export function ForgotPasswordForm() {
           disabled={submitting}
           className="w-full h-12 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white font-semibold text-[15px] hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-60"
         >
-          {submitting ? "Sending…" : "Send 4-digit code"}
+          {submitting ? "Sending…" : "Send 6-digit code"}
         </button>
       </form>
     </AuthCenteredShell>

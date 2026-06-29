@@ -1,8 +1,15 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LoginCard } from "@/components/sections/LoginCard";
+import { redirectIfAuthed } from "@/lib/redirect-if-authed";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  const { callbackUrl } = await searchParams;
+  await redirectIfAuthed(callbackUrl);
   return (
     <>
       <Navbar />

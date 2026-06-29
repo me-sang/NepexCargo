@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import {
@@ -14,6 +16,7 @@ import {
 } from "@/components/ui/AuthIcons";
 
 export function SignupCard() {
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -45,14 +48,19 @@ export function SignupCard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
-      if (!res.ok) throw new Error("Signup failed");
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error ?? "Could not create your account.");
+      }
 
       const signInRes = await signIn("credentials", { email, password, redirect: false });
-      if (signInRes?.error) throw new Error(signInRes.error);
-      window.location.href = "/";
-    } catch {
-      setError("Could not create your account. Please try again.");
-    } finally {
+      if (signInRes?.error) throw new Error("Account created — please sign in.");
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not create your account.");
       setSubmitting(false);
     }
   }
@@ -78,12 +86,12 @@ export function SignupCard() {
         </h1>
         <p className="mt-3 text-[14px] text-[var(--color-text-body)]">
           Already have an account?{" "}
-          <a
+          <Link
             href="/login"
             className="font-semibold text-[var(--color-text)] underline underline-offset-2 hover:text-[var(--color-accent-hover)]"
           >
             Sign in
-          </a>
+          </Link>
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">

@@ -1,8 +1,10 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SetNewPasswordForm } from "@/components/sections/SetNewPasswordForm";
+import { redirectIfAuthed } from "@/lib/redirect-if-authed";
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage() {
+  await redirectIfAuthed();
   return (
     <>
       <Navbar />

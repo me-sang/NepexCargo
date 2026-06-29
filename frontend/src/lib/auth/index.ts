@@ -1,13 +1,11 @@
-import { stubAuthService } from "./stub";
+import { backendAuthService } from "./backend";
 import type { AuthService } from "./types";
 
 /**
- * The active auth implementation.
- * Swap this single export when the real backend is ready, e.g.
- *
- *   import { backendAuthService } from "./backend";
- *   export const authService: AuthService = backendAuthService;
+ * Active auth implementation. Backed by the Nepex Cargo Express API at
+ * `${NEXT_PUBLIC_API_URL}/auth/*`. Swap to `stubAuthService` here for
+ * offline/dev work.
  */
-export const authService: AuthService = stubAuthService;
+export const authService: AuthService = backendAuthService;
 
-export type { AuthService, AuthUser, LoginInput, SignupInput, VerifyCodeInput, ResetPasswordInput } from "./types";
+export type { AuthService, AuthUser, LoginInput, SignupInput, ResetPasswordInput } from "./types";

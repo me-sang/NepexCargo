@@ -7,8 +7,15 @@ import { authService } from "@/lib/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
+// Backend JWT expires after 7 days — keep the Auth.js session in sync so the
+// cookie and the accessToken it carries die together (avoids silent backend
+// 401s after day 7 while the FE still thinks the user is signed in).
+const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  session: { strategy: "jwt", maxAge: SEVEN_DAYS_SECONDS },
+  jwt: { maxAge: SEVEN_DAYS_SECONDS },
   providers: [
     Google,
     Credentials({
@@ -25,16 +32,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, account, user }) {
-      // Credentials login — authService.login already returns { id, email, name }
+      // Credentials login — authService.login returned an AuthUser with accessToken.
       if (account?.provider === "credentials" && user) {
-        token.accessToken = (user as { accessToken?: string }).accessToken;
+        if ("accessToken" in user && typeof user.accessToken === "string") {
+          token.accessToken = user.accessToken;
+        }
       }
 
-      // Google login — exchange Google ID token for a backend JWT
+      // Google login — exchange the Google ID token for a backend JWT.
+      // NEXT_PUBLIC_API_URL already includes /api/v1, so the path is just /auth/google.
       if (account?.provider === "google" && account.id_token) {
         try {
-          const res = await fetch(`${API_URL}/api/v1/auth/google`, {
+          const res = await fetch(`${API_URL}/auth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idToken: account.id_token }),
@@ -47,15 +58,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.sub = data.data?.user?.id ?? token.sub;
           }
         } catch {
-          // leave token.accessToken undefined — protected routes will 401
+          // Leave token.accessToken undefined — backend calls will 401.
         }
       }
 
       return token;
     },
-    async session({ session, token }) {
-      (session as typeof session & { accessToken?: string }).accessToken =
-        token.accessToken as string | undefined;
+    session({ session, token }) {
+      if (typeof token.accessToken === "string") {
+        session.accessToken = token.accessToken;
+      }
       return session;
     },
   },
