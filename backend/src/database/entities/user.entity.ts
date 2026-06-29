@@ -5,14 +5,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
   JoinTable,
+  JoinColumn,
   Index,
 } from 'typeorm';
 import { Role } from './role.entity';
+import { Tenant } from './tenant.entity';
 
 @Entity('users')
 @Index(['email'], { unique: true })
 @Index(['status'])
+@Index(['resetTokenHash'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,6 +38,31 @@ export class User {
 
   @Column({ nullable: true })
   lastLoginAt: Date;
+
+  // ── Tenant ──────────────────────────────────────────────────────────────────
+
+  @Column({ type: 'uuid', nullable: true })
+  tenantId: string | null;
+
+  @ManyToOne(() => Tenant, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'tenantId' })
+  tenant: Tenant | null;
+
+  // ── Password reset ───────────────────────────────────────────────────────────
+
+  @Column({ nullable: true })
+  otpHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  otpExpiresAt: Date | null;
+
+  @Column({ nullable: true })
+  resetTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiresAt: Date | null;
+
+  // ── Roles ────────────────────────────────────────────────────────────────────
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
