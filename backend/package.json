@@ -18,7 +18,7 @@
     "migration:generate": "typeorm-ts-node-commonjs -d src/database/data-source.ts migration:generate",
     "migration:show": "typeorm-ts-node-commonjs -d src/database/data-source.ts migration:show",
     "test": "jest",
-    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:unit": "TEST_TYPE=unit jest --testPathPattern=tests/unit",
     "test:integration": "jest --testPathPattern=tests/integration",
     "test:e2e": "jest --testPathPattern=tests/e2e",
     "test:coverage": "jest --coverage",

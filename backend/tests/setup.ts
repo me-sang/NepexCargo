@@ -17,11 +17,7 @@ if (!process.env.DB_NAME || process.env.DB_NAME === 'nepex_cargo_db') {
 
 // Unit tests do not require a database connection.
 // Skip DB init when running only tests under tests/unit/.
-const isUnitOnly =
-  process.env.JEST_WORKER_ID !== undefined &&
-  (expect as unknown as { getState: () => { testPath?: string } })
-    .getState()
-    ?.testPath?.includes('/tests/unit/') === true;
+const isUnitOnly = process.env.TEST_TYPE === 'unit';
 
 if (!isUnitOnly) {
   beforeAll(async () => {
