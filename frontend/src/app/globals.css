@@ -107,6 +107,12 @@
   h3 {
     letter-spacing: -0.02em;
   }
+
+  /* Tailwind v4 resets button cursor to default — restore pointer for any clickable button. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* Container utility */

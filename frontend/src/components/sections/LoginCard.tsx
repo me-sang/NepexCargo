@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import {
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/AuthIcons";
 
 export function LoginCard() {
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +32,13 @@ export function LoginCard() {
       redirect: false,
     });
 
-    setSubmitting(false);
     if (res?.error) {
+      setSubmitting(false);
       setError("Invalid email or password.");
       return;
     }
-    window.location.href = "/";
+    router.push("/");
+    router.refresh();
   }
 
   return (
@@ -58,12 +62,12 @@ export function LoginCard() {
         </h1>
         <p className="mt-3 text-[14px] text-[var(--color-text-body)]">
           Don&apos;t have an account?{" "}
-          <a
+          <Link
             href="/signup"
             className="font-semibold text-[var(--color-text)] underline underline-offset-2 hover:text-[var(--color-accent-hover)]"
           >
             Sign up
-          </a>
+          </Link>
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -125,12 +129,12 @@ export function LoginCard() {
               />
               <span>Remember me</span>
             </label>
-            <a
+            <Link
               href="/forgot-password"
               className="text-[13px] font-semibold text-[var(--color-text)] underline underline-offset-2 hover:text-[var(--color-accent-hover)]"
             >
               Forgot Password?
-            </a>
+            </Link>
           </div>
 
           {error && (

@@ -1,8 +1,10 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { OtpForm } from "@/components/sections/OtpForm";
+import { redirectIfAuthed } from "@/lib/redirect-if-authed";
 
-export default function VerifyOtpPage() {
+export default async function VerifyOtpPage() {
+  await redirectIfAuthed();
   return (
     <>
       <Navbar />

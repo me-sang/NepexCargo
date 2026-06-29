@@ -74,10 +74,7 @@ export class CreateSuperAdmins260625092405110 implements MigrationInterface {
       new TableIndex({ columnNames: ['email'], isUnique: true }),
     );
 
-    await queryRunner.createIndex(
-      'super_admins',
-      new TableIndex({ columnNames: ['status'] }),
-    );
+    await queryRunner.createIndex('super_admins', new TableIndex({ columnNames: ['status'] }));
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

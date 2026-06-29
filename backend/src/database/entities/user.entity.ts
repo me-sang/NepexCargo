@@ -5,20 +5,29 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
   JoinTable,
+  JoinColumn,
   Index,
 } from 'typeorm';
 import { Role } from './role.entity';
+import { Tenant } from './tenant.entity';
 
 @Entity('users')
 @Index(['email'], { unique: true })
+@Index(['googleId'], { unique: true, where: '"googleId" IS NOT NULL' })
 @Index(['status'])
+@Index(['resetTokenHash'])
+@Index(['emailVerifyTokenHash'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   email: string;
+
+  @Column({ nullable: true })
+  googleId: string | null;
 
   @Column()
   password: string;
@@ -34,6 +43,48 @@ export class User {
 
   @Column({ nullable: true })
   lastLoginAt: Date;
+
+  // ── Tenant ──────────────────────────────────────────────────────────────────
+
+  @Column({ type: 'uuid', nullable: true })
+  tenantId: string | null;
+
+  @ManyToOne(() => Tenant, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'tenantId' })
+  tenant: Tenant | null;
+
+  // ── Email verification ───────────────────────────────────────────────────────
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ nullable: true })
+  emailVerifyTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifyTokenExpiresAt: Date | null;
+
+  @Column({ nullable: true })
+  emailVerifyOtpHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifyOtpExpiresAt: Date | null;
+
+  // ── Password reset ───────────────────────────────────────────────────────────
+
+  @Column({ nullable: true })
+  otpHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  otpExpiresAt: Date | null;
+
+  @Column({ nullable: true })
+  resetTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiresAt: Date | null;
+
+  // ── Roles ────────────────────────────────────────────────────────────────────
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({

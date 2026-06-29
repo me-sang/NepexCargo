@@ -3,18 +3,18 @@ import { authService } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as
-    | { email?: string; code?: string; password?: string }
+    | { resetToken?: string; otp?: string; newPassword?: string }
     | null;
 
-  if (!body?.email || !body?.code || !body?.password) {
+  if (!body?.resetToken || !body?.otp || !body?.newPassword) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
   try {
     await authService.resetPassword({
-      email: body.email,
-      code: body.code,
-      password: body.password,
+      resetToken: body.resetToken,
+      otp: body.otp,
+      newPassword: body.newPassword,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

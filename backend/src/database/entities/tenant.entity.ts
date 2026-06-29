@@ -57,7 +57,12 @@ export class Tenant {
   status: TenantStatus;
 
   /** Billing model — regular (prepaid wallet) | credit (postpaid limit). */
-  @Column({ type: 'varchar', length: 30, default: TenantAccountType.REGULAR, enum: TenantAccountType })
+  @Column({
+    type: 'varchar',
+    length: 30,
+    default: TenantAccountType.REGULAR,
+    enum: TenantAccountType,
+  })
   accountType: TenantAccountType;
 
   /** Prepaid wallet balance; reduced on each transaction. */

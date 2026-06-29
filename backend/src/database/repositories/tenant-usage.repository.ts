@@ -15,19 +15,11 @@ export const tenantUsageRepository = AppDataSource.getRepository(TenantUsage).ex
    * Atomically increments a counter column by the given amount.
    * Uses a SQL UPDATE so concurrent requests don't race on a stale read.
    */
-  async increment(
-    tenantId: string,
-    field: keyof IncrementableField,
-    amount = 1,
-  ): Promise<void> {
+  async increment(tenantId: string, field: keyof IncrementableField, amount = 1): Promise<void> {
     await this.increment({ tenantId }, field, amount);
   },
 
-  async decrement(
-    tenantId: string,
-    field: keyof IncrementableField,
-    amount = 1,
-  ): Promise<void> {
+  async decrement(tenantId: string, field: keyof IncrementableField, amount = 1): Promise<void> {
     await this.decrement({ tenantId }, field, amount);
   },
 });

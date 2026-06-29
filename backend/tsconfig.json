@@ -31,7 +31,8 @@
       "@workers/*": ["src/workers/*"],
       "@jobs/*": ["src/jobs/*"],
       "@events/*": ["src/events/*"],
-      "@storage/*": ["src/storage/*"]
+      "@storage/*": ["src/storage/*"],
+      "@docs/*": ["src/docs/*"]
     }
   },
   "include": ["**/*.ts"],

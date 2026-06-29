@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { AuthCenteredShell } from "./AuthCenteredShell";
@@ -13,8 +14,8 @@ export function SetNewPasswordForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const email = useSessionItem("nepex.reset.email");
-  const code = useSessionItem("nepex.reset.code");
+  const resetToken = useSessionItem("nepex.reset.token");
+  const otp = useSessionItem("nepex.reset.otp");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,20 +33,30 @@ export function SetNewPasswordForm() {
       setError("Passwords do not match.");
       return;
     }
+    if (!resetToken || !otp) {
+      setError("Your reset session has expired. Start again.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const res = await fetch("/api/auth/forgot-password/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code, password }),
+        body: JSON.stringify({ resetToken, otp, newPassword: password }),
       });
-      if (!res.ok) throw new Error("Failed");
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error ?? "Could not reset password. The code may be invalid or expired.");
+      }
       sessionStorage.removeItem("nepex.reset.email");
-      sessionStorage.removeItem("nepex.reset.code");
+      sessionStorage.removeItem("nepex.reset.token");
+      sessionStorage.removeItem("nepex.reset.otp");
       router.push("/forgot-password/success");
-    } catch {
-      setError("Could not reset password. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reset password.");
       setSubmitting(false);
     }
   }
@@ -84,6 +95,15 @@ export function SetNewPasswordForm() {
         >
           {submitting ? "Saving…" : "Set new password"}
         </button>
+
+        <p className="text-center text-[13px] text-[var(--color-text-body)]/55">
+          <Link
+            href="/forgot-password"
+            className="hover:text-[var(--color-text)] underline underline-offset-2"
+          >
+            Start over
+          </Link>
+        </p>
       </form>
     </AuthCenteredShell>
   );

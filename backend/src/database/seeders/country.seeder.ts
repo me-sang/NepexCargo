@@ -14,6 +14,9 @@ export const countrySeeder = {
       isActive: true,
     }));
 
-    await countryRepository.upsert(countries, { conflictPaths: ['iso2'], skipUpdateIfNoValuesChanged: true });
+    await countryRepository.upsert(countries, {
+      conflictPaths: ['iso2'],
+      skipUpdateIfNoValuesChanged: true,
+    });
   },
 };

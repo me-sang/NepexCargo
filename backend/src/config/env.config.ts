@@ -61,6 +61,15 @@ export const env = cleanEnv(process.env, {
   DHL_API_KEY: str({ default: '' }),
   DHL_SANDBOX: bool({ default: true }),
 
+  // Google OAuth
+  GOOGLE_CLIENT_ID: str({ default: '' }),
+
+  // Email (temporary env-based fallback — remove when all tenants have email config)
+  SOURCE_EMAIL: str({ choices: ['env', 'tenant'], default: 'tenant' }),
+  RESEND_API_KEY: str({ default: '' }),
+  RESEND_FROM_EMAIL: str({ default: 'no-reply@example.com' }),
+  RESEND_FROM_NAME: str({ default: 'Nepex Cargo' }),
+
   // EMX (Emirates Post)
   // Shipments + label host (Create / Cancel / Print Label) — uses x-api-key + Password.
   EMX_BASE_URL: str({ default: 'https://local-stg.epservices.ae' }),
