@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
+import { Logo } from "@/components/ui/Logo";
+
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { label: "Bookings", href: "/dashboard/bookings", icon: BoxIcon },
@@ -22,7 +24,7 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-[260px] shrink-0 flex-col bg-[var(--color-brand)] text-white">
       <Link href="/dashboard" className="px-6 h-[78px] flex items-center">
-        <span className="text-[18px] font-extrabold tracking-tight">Nepex Cargo</span>
+        <Logo />
       </Link>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
