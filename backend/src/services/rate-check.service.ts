@@ -49,10 +49,7 @@ export interface CheckRatesResult {
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
-export async function checkRates(
-  tenantId: string,
-  input: CheckRatesInput,
-): Promise<CheckRatesResult> {
+export async function checkRates(input: CheckRatesInput): Promise<CheckRatesResult> {
   const { minWeight, weightUnit, sourceLocation, destinationLocation } = input;
 
   const base: Omit<CheckRatesResult, 'destinationZone' | 'rates'> = {
@@ -63,7 +60,7 @@ export async function checkRates(
   };
 
   // 1. Find the zone that covers the destination country
-  const zones = await AppDataSource.getRepository(Zone).find({ where: { tenantId } });
+  const zones = await AppDataSource.getRepository(Zone).find();
   const destinationZone = zones.find((z) => z.zoneFor?.includes(destinationLocation)) ?? null;
 
   if (!destinationZone) {
@@ -75,7 +72,6 @@ export async function checkRates(
   // 2. Find active rate cards for this origin country → destination zone
   const cards = await AppDataSource.getRepository(RateCard).find({
     where: {
-      tenantId,
       active: true,
       originCountry: sourceLocation,
       destinationZoneId: destinationZone.id,

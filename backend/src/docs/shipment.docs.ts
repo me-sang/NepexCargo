@@ -46,7 +46,6 @@ registry.registerPath({
   path: '/shipment/international/check-rates',
   tags: ['Shipment — International'],
   summary: 'Check available rates for an international shipment',
-  security: [{ BearerAuth: [] }],
   request: {
     body: {
       content: {
@@ -68,7 +67,5 @@ registry.registerPath({
       content: { 'application/json': { schema: SuccessData(CheckRatesResponse) } },
     },
     400: { description: 'Validation error', content: { 'application/json': { schema: ErrorResponse } } },
-    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
-    403: { description: 'No tenant on account', content: { 'application/json': { schema: ErrorResponse } } },
   },
 });
