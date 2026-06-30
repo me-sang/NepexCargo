@@ -20,6 +20,7 @@ export const QUEUE_NAMES = {
   SHIPMENT: 'shipment',
   PAYMENT: 'payment',
   REPORT: 'report',
+  RATE_IMPORT: 'rate-import',
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];
