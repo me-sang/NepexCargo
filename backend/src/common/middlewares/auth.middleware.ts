@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '@config/env.config';
 import { AppDataSource } from '@database/data-source';
 import { User } from '@database/entities';
-import { PermissionAction, PermissionResource } from '@config/permission.enums';
+import { PermissionAction, PermissionResource, UserRole } from '@config/permission.enums';
 import { logger } from '@common/helpers/logger';
 
 declare global {
@@ -65,5 +65,25 @@ export const checkPermission = (resource?: PermissionResource, action?: Permissi
       logger.error('Auth middleware error', error);
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
+  };
+};
+
+/**
+ * Role-gate middleware. Must run after checkPermission() so req.user is set.
+ * Usage: checkRole([UserRole.PARTNER_OWNER, UserRole.MANAGER])
+ */
+export const checkRole = (roles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const hasRole = user.roles?.some((r) => roles.includes(r.name as UserRole));
+    if (!hasRole) {
+      return res.status(403).json({ success: false, message: 'Insufficient role' });
+    }
+
+    return next();
   };
 };
