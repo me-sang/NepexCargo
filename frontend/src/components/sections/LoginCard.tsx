@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import {
@@ -16,9 +16,17 @@ import {
 
 export function LoginCard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Anchor `/`, reject `//` to prevent open-redirects. Mirrors redirectIfAuthed.
+  const rawCallback = searchParams.get("callbackUrl");
+  const callbackUrl =
+    rawCallback && rawCallback.startsWith("/") && !rawCallback.startsWith("//")
+      ? rawCallback
+      : "/";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +45,7 @@ export function LoginCard() {
       setError("Invalid email or password.");
       return;
     }
-    router.push("/");
+    router.push(callbackUrl);
     router.refresh();
   }
 
@@ -159,7 +167,11 @@ export function LoginCard() {
           <span className="h-px flex-1 bg-[var(--color-border)]" />
         </div>
 
-        <SocialButton label="Continue with Google" icon={<GoogleIcon />} onClick={() => signIn("google")} />
+        <SocialButton
+          label="Continue with Google"
+          icon={<GoogleIcon />}
+          onClick={() => signIn("google", { callbackUrl })}
+        />
       </div>
     </div>
   );
