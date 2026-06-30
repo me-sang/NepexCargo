@@ -3,7 +3,7 @@ export { Role } from './role.entity';
 export { Permission } from './permission.entity';
 export { Tenant } from './tenant.entity';
 export { Plan } from './plan.entity';
-export { PlanFeature } from './plan-feature.entity';
+export { PlanFeature, PlanFeatureType, PlanFeatureKey } from './plan-feature.entity';
 export { TenantPlan } from './tenant-plan.entity';
 export { TenantSetting } from './tenant-setting.entity';
 export { TenantDomain } from './tenant-domain.entity';

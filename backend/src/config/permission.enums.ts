@@ -1,8 +1,18 @@
-export enum USER_ROLE {
+export enum UserRole {
+  /** Platform-level administrator within a tenant. */
   ADMIN = 'admin',
+  /** Tenant manager — elevated access within an organisation. */
   MANAGER = 'manager',
+  /** Regular tenant staff member. */
   USER = 'user',
+  /** Tenant owner — created on onboarding, has full tenant control. */
+  PARTNER_OWNER = 'partner_owner',
+  /** Tenant agent — cargo agent with scoped shipment access. */
+  AGENT = 'agent',
 }
+
+/** @deprecated Use UserRole */
+export const USER_ROLE = UserRole;
 
 export enum PermissionAction {
   READ = 'read',

@@ -20,6 +20,7 @@ import { TenantUsage } from './tenant-usage.entity';
 @Index(['slug'], { unique: true })
 @Index(['code'], { unique: true })
 @Index(['status'])
+// Also knows as "Organization" or "Company" in other contexts.
 export class Tenant {
   @PrimaryGeneratedColumn('uuid')
   id: string;

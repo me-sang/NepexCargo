@@ -1,5 +1,5 @@
 import { roleService, permissionService } from '@services/index';
-import { PermissionAction, PermissionResource } from '@config/permission.enums';
+import { PermissionAction, PermissionResource, UserRole } from '@config/permission.enums';
 
 export const permissionSeeder = {
   name: '001-permissions',
@@ -46,9 +46,11 @@ export const roleSeeder = {
   name: '002-roles',
   run: async () => {
     const roles = [
-      { name: 'admin', description: 'Administrator' },
-      { name: 'manager', description: 'Manager' },
-      { name: 'user', description: 'Regular user' },
+      { name: UserRole.ADMIN, description: 'Platform-level administrator within a tenant' },
+      { name: UserRole.MANAGER, description: 'Tenant manager with elevated access' },
+      { name: UserRole.USER, description: 'Regular tenant staff member' },
+      { name: UserRole.PARTNER_OWNER, description: 'Tenant owner with full organisational control' },
+      { name: UserRole.AGENT, description: 'Cargo agent with scoped shipment access' },
     ];
 
     for (const role of roles) {

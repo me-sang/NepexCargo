@@ -8,6 +8,7 @@ import { userRepository } from '@database/repositories';
 import { emailProducer } from '@queues/producers/email.producer';
 import { env } from '@config/env.config';
 import { logger } from '@common/helpers/logger';
+import { UserRole } from '@config/permission.enums';
 
 const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
@@ -27,7 +28,7 @@ export class UserService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userRole = await this.roleRepository.findOne({ where: { name: 'user' } });
+    const userRole = await this.roleRepository.findOne({ where: { name: UserRole.USER }});
 
     if (!userRole) {
       throw new NotFoundException('Default user role');
@@ -190,7 +191,7 @@ export class UserService {
     });
 
     if (!user) {
-      const userRole = await this.roleRepository.findOne({ where: { name: 'user' } });
+      const userRole = await this.roleRepository.findOne({ where: { name: UserRole.USER }});
       if (!userRole) throw new NotFoundException('Default user role');
 
       user = this.userRepository.create({

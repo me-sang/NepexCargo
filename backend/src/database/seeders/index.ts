@@ -5,8 +5,10 @@ import { logger } from '../../common/helpers/logger';
 import { permissionSeeder, roleSeeder } from './roles-permissions.seeder';
 import { countrySeeder } from './country.seeder';
 import { superAdminSeeder } from './super-admin.seeder';
+import { planSeeder } from './plan.seeder';
+import { defaultTenantSeeder } from './default-tenant.seeder';
 
-const seeders = [permissionSeeder, roleSeeder, countrySeeder, superAdminSeeder];
+const seeders = [permissionSeeder, roleSeeder, countrySeeder, superAdminSeeder, planSeeder, defaultTenantSeeder];
 
 async function main() {
   await AppDataSource.initialize();

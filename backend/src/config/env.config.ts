@@ -30,6 +30,10 @@ export const env = cleanEnv(process.env, {
   SUPER_ADMIN_EMAIL: str({ default: 'superadmin@example.com' }),
   SUPER_ADMIN_PASSWORD: str({ default: 'changeme123' }),
 
+  // Default tenant seed (used by seeder only)
+  DEFAULT_TENANT_USER_EMAIL: str({ default: 'owner@nepexcargo.com' }),
+  DEFAULT_TENANT_USER_PASSWORD: str({ default: 'NepEx@C4rg0#2024!' }),
+
   // CORS
   CORS_ORIGINS: commaSeparated({ default: ['http://localhost:3000'] }),
 
