@@ -4,7 +4,7 @@ import { AppDataSource } from './src/database/data-source';
 import { redisClient } from './src/config/redis.config';
 import { env } from './src/config/env.config';
 import { logger } from './src/common/helpers/logger';
-import { startEmailWorker, startShipmentWorker } from './src/queues';
+import { startEmailWorker, startRateImportWorker, startShipmentWorker } from './src/queues';
 
 const PORT = env.PORT;
 
@@ -16,7 +16,7 @@ async function bootstrap() {
     await redisClient.connect();
     logger.info('Redis connection established');
 
-    const workers = [startEmailWorker(), startShipmentWorker()];
+    const workers = [startEmailWorker(), startShipmentWorker(), startRateImportWorker()];
     logger.info(`Started ${workers.length} workers`);
 
     const server = app.listen(PORT, () => {

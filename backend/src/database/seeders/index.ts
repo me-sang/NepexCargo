@@ -7,8 +7,9 @@ import { countrySeeder } from './country.seeder';
 import { superAdminSeeder } from './super-admin.seeder';
 import { planSeeder } from './plan.seeder';
 import { defaultTenantSeeder } from './default-tenant.seeder';
+import { ratesSeeder } from './rates.seeder';
 
-const seeders = [permissionSeeder, roleSeeder, countrySeeder, superAdminSeeder, planSeeder, defaultTenantSeeder];
+const seeders = [permissionSeeder, roleSeeder, countrySeeder, superAdminSeeder, planSeeder, defaultTenantSeeder, ratesSeeder];
 
 async function main() {
   await AppDataSource.initialize();

@@ -3,6 +3,8 @@ import './super-admin.docs';
 import './user.docs';
 import './plan.docs';
 import './subscription.docs';
+import './rate-management.docs';
+import './shipment.docs';
 
 import { generateSwaggerSpec } from '@config/swagger.config';
 
