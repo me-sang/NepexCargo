@@ -24,8 +24,10 @@ import {
 import {
   exportZonesHandler,
   importZonesHandler,
+  sampleZonesHandler,
   exportRatesHandler,
   importRatesHandler,
+  sampleRatesHandler,
   importStatusHandler,
 } from '@controllers/rate-import-export.controller';
 
@@ -54,6 +56,7 @@ rateManagementRoutes.get('/import/status/:jobId', auth, importStatusHandler);
 
 // ── Zones ─────────────────────────────────────────────────────────────────────
 rateManagementRoutes.get('/zones/export', auth, ownerOrManager, exportZonesHandler);
+rateManagementRoutes.get('/zones/sample', auth, sampleZonesHandler);
 rateManagementRoutes.post('/zones/import', auth, ownerOrManager, upload.single('file'), importZonesHandler);
 rateManagementRoutes.get('/zones', auth, listZones);
 rateManagementRoutes.get('/zones/:id', auth, getZone);
@@ -63,6 +66,7 @@ rateManagementRoutes.delete('/zones/:id', auth, ownerOrManager, deleteZone);
 
 // ── Rate Cards ────────────────────────────────────────────────────────────────
 rateManagementRoutes.get('/rates/export', auth, ownerOrManager, exportRatesHandler);
+rateManagementRoutes.get('/rates/sample', auth, sampleRatesHandler);
 rateManagementRoutes.post('/rates/import', auth, ownerOrManager, upload.single('file'), importRatesHandler);
 rateManagementRoutes.get('/rates', auth, listRateCards);
 rateManagementRoutes.get('/rates/:id', auth, getRateCard);

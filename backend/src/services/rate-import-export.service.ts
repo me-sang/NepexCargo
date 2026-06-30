@@ -322,3 +322,27 @@ export async function importRates(
 
   return { zonesFound, zonesCreated, cardsUpserted };
 }
+
+// ── Sample templates ──────────────────────────────────────────────────────────
+
+export function sampleZones(format: 'csv' | 'xlsx'): ReturnType<typeof buildSpreadsheet> {
+  const rows: SheetRow[] = [
+    { zone_name: 'Zone A', country: 'NP' },
+    { zone_name: 'Zone A', country: 'IN' },
+    { zone_name: 'Zone B', country: 'US' },
+    { zone_name: 'Zone B', country: 'GB' },
+    { zone_name: 'Zone C', country: 'AE' },
+  ];
+  return buildSpreadsheet(rows, format);
+}
+
+export function sampleRates(format: 'csv' | 'xlsx'): ReturnType<typeof buildSpreadsheet> {
+  const rows: SheetRow[] = [
+    { weight_kg: 0.5, 'Zone A': 10.0, 'Zone B': 12.0, 'Zone C': 15.0, type: 'STANDARD', origin_country: 'NP' },
+    { weight_kg: 1, 'Zone A': 18.0, 'Zone B': 22.0, 'Zone C': 28.0, type: 'STANDARD', origin_country: 'NP' },
+    { weight_kg: 2, 'Zone A': 30.0, 'Zone B': 36.0, 'Zone C': 45.0, type: 'STANDARD', origin_country: 'NP' },
+    { weight_kg: 5, 'Zone A': 65.0, 'Zone B': 80.0, 'Zone C': 100.0, type: 'STANDARD', origin_country: 'NP' },
+    { weight_kg: 10, 'Zone A': 110.0, 'Zone B': 140.0, 'Zone C': 175.0, type: 'STANDARD', origin_country: 'NP' },
+  ];
+  return buildSpreadsheet(rows, format);
+}

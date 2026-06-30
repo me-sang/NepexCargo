@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Job } from 'bullmq';
 import { ApiResponse } from '@common/helpers/api-response.helper';
 import { ForbiddenException, BadRequestException, NotFoundException } from '@common/exceptions/app.exception';
-import { exportZones, exportRates } from '@services/rate-import-export.service';
+import { exportZones, exportRates, sampleZones, sampleRates } from '@services/rate-import-export.service';
 import { rateImportProducer } from '@queues/producers/rate-import.producer';
 import { getQueue } from '@queues/queue.factory';
 import { QUEUE_NAMES } from '@config/queue.config';
@@ -92,6 +92,32 @@ export async function importRatesHandler(
       mimetype: req.file.mimetype,
     });
     res.status(202).json({ success: true, data: { jobId, message: 'Rate import queued' } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ── Sample templates ──────────────────────────────────────────────────────────
+
+export async function sampleZonesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    sendFile(res, sampleZones(resolveFormat(req)), 'zones_sample');
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function sampleRatesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    sendFile(res, sampleRates(resolveFormat(req)), 'rates_sample');
   } catch (error) {
     next(error);
   }
