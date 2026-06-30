@@ -1,19 +1,19 @@
 # Nepex Cargo — Super Admin & Partner Dashboard Design
 
-**Date:** 2026-06-26  
-**Scope:** Super Admin panel (`admin/`) + Partner/Agent dashboard (`dashboard/`)  
+**Date:** 2026-06-26 (amended 2026-06-29 — partner/agent dashboard relocated from a separate `dashboard/` app into `frontend/` at `/dashboard/*`)
+**Scope:** Super Admin panel (`admin/`) + Partner/Agent dashboard (route group under `frontend/`)
 **Status:** Approved for implementation planning
 
 ---
 
 ## 1. Overview
 
-Nepex Cargo is a multi-tenant SaaS logistics platform. This spec covers two new Next.js applications added to the existing monorepo:
+Nepex Cargo is a multi-tenant SaaS logistics platform. This spec covers:
 
-- **`admin/`** — Super Admin panel for platform operators (Nepex Cargo team)
-- **`dashboard/`** — Partner dashboard + Agent portal for tenant companies and their branch operators
+- **`admin/`** — NEW Next.js app for platform operators (Nepex Cargo team) at `admin.nepexcargo.com`
+- **`/dashboard/*` route group inside the existing `frontend/`** — Partner dashboard + Agent portal for tenant companies and their branch operators, served from the main domain
 
-The existing **`frontend/`** (public site) and **`backend/`** (Node/Express/TypeORM API) are unchanged in structure but the backend gains new entities and routes.
+The existing **`frontend/`** (public site + customer auth) gains the `/dashboard/*` route group. The **`backend/`** (Node/Express/TypeORM API) gains new entities and routes.
 
 ---
 
@@ -21,14 +21,13 @@ The existing **`frontend/`** (public site) and **`backend/`** (Node/Express/Type
 
 ```
 nepex-cargo-project/
-├── backend/       (existing — API server, serves all three apps)
-├── frontend/      (existing — public site)
+├── backend/       (existing — API server, serves both apps)
+├── frontend/      (existing — public site + customer auth + /dashboard/* for partner_owner/agent)
 ├── admin/         (NEW — Next.js 16, App Router, Tailwind CSS v4)
-├── dashboard/     (NEW — Next.js 16, App Router, Tailwind CSS v4)
 └── README.md
 ```
 
-Each app has its own independent component set — no shared UI library.
+`admin/` has its own independent component set. The partner/agent dashboard reuses `frontend/`'s component set and chrome (Navbar, Footer, design tokens) — no shared UI library between `frontend/` and `admin/`.
 
 ---
 
@@ -36,17 +35,14 @@ Each app has its own independent component set — no shared UI library.
 
 | URL | App | Notes |
 |-----|-----|-------|
-| `nepexcargo.com` | `frontend/` | Public landing, quote form, tracking |
-| `{tenant-name}.com` | `frontend/` | White-labeled public site for a partner |
+| `nepexcargo.com` | `frontend/` | Public landing, quote form, tracking, customer auth |
+| `nepexcargo.com/dashboard/*` | `frontend/` | Partner + agent dashboard (role-gated route group) |
+| `{tenant-name}.com` | `frontend/` | White-labeled public site for a partner (the partner's own dashboard is still served from `nepexcargo.com/dashboard/*`) |
 | `admin.nepexcargo.com` | `admin/` | Super Admin only |
-| `dashboard.nepexcargo.com` | `dashboard/` | Nepex Cargo's own partner dashboard |
-| `dashboard.{tenant-name}.com` | `dashboard/` | Partner dashboard on custom domain |
 
-**Tenant resolution in `dashboard/`:** On each request, middleware reads the `Host` header and looks up the tenant via the `tenant_domain` table (already exists). After login, the JWT carries `tenant_id` + `role` and all API calls are scoped to that tenant.
+**Tenant resolution:** Tenant context comes from the JWT — after a partner_owner or agent logs in, the JWT carries `tenant_id` + `role` and all API calls are scoped to that tenant. No `Host`-header lookup or `tenant_domain` resolution is needed for dashboard access.
 
-**Custom domains (future):** Partner adds their domain in `/settings/domain`. DNS verification + SSL provisioning required. The `tenant_domain` table already supports this pattern.
-
-**Local dev:** Use `/etc/hosts` entries — `admin.localhost`, `test-partner.localhost.dashboard` pointing to `127.0.0.1`.
+**Local dev:** Standard `http://localhost:3000` for `frontend/` (including `/dashboard/*`); `admin/` runs on its own dev port per the admin app plan.
 
 ---
 
@@ -217,7 +213,7 @@ Each app has its own independent component set — no shared UI library.
   - **Change plan** — dropdown → confirm → updates `TenantPlan`
   - **Suspend** — sets `Tenant.active = false`, blocks all dashboard logins for that tenant
   - **Reactivate** — sets `Tenant.active = true`
-  - **Impersonate** — backend issues a short-lived (15min) scoped token → admin is redirected to `dashboard.nepexcargo.com` (always the platform domain, never the tenant's custom domain) as that tenant owner. A persistent banner shows "Impersonating [Company Name] — Exit" and clicking Exit destroys the scoped token.
+  - **Impersonate** — backend issues a short-lived (15min) scoped token → admin is redirected to `nepexcargo.com/dashboard?impersonateToken=<token>` as that tenant owner. A persistent banner shows "Impersonating [Company Name] — Exit" inside the `/dashboard` layout, and clicking Exit destroys the scoped token.
 
 **`/plans`**
 - List: name, price, billing cycle, feature count, tenant count using it
@@ -234,17 +230,18 @@ Each app has its own independent component set — no shared UI library.
 
 ---
 
-## 6. Partner Dashboard (`dashboard/`)
+## 6. Partner Dashboard (route group inside `frontend/` at `/dashboard/*`)
 
-**Tech:** Next.js 16 (App Router), Tailwind CSS v4, independent component set.  
-**Auth:** Login at `/login`. JWT carries `tenant_id` + `role` (`partner_owner | agent`).  
-**Tenant resolution:** Middleware reads `Host` header → looks up `tenant_domain` → resolves `tenant_id` → all API calls scoped to that tenant.
+**Tech:** Hosted inside the existing `frontend/` Next.js 16 (App Router) app. Reuses `frontend/`'s Tailwind v4 setup, design tokens, and shared chrome (Navbar/Footer).
+**Auth:** Reuses `frontend/`'s existing `/login` page and the `POST /api/v1/auth/login` endpoint. The backend returns the user's `role` (and `tenant_id` when applicable) in the JWT, so one login surface serves all three frontend roles: `customer | partner_owner | agent`.
+**Route access:** Middleware in `frontend/` gates `/dashboard/*`. Unauthenticated → redirect to `/login?callbackUrl=…`. Authenticated as `customer` → silent redirect to `/` (no toast). Authenticated as `partner_owner` or `agent` → proceed.
+**Tenant resolution:** Tenant context comes from the JWT's `tenant_id` claim — no subdomain or `Host`-header logic.
 
 ### Profile Gate
 
-If `Tenant.profile_complete = false` → redirect to `/setup` regardless of intended destination.
+If `Tenant.profile_complete = false` → redirect to `/dashboard/setup` regardless of intended destination within `/dashboard/*`.
 
-**`/setup`** — Company profile wizard:
+**`/dashboard/setup`** — Company profile wizard:
 1. Basic info: company name, logo upload, phone, website
 2. Address: street, city, state/province, zip, country
 3. Operations: service regions (multi-select countries), supported shipment types (international / domestic / local)
@@ -253,33 +250,33 @@ If `Tenant.profile_complete = false` → redirect to `/setup` regardless of inte
 ### Pages
 
 ```
-/login
-/setup
+/login                            (shared with customer login — already in frontend/)
+/dashboard/setup
 
 /dashboard
-/rates/zones
-/rates/rate-cards
-/rates/rate-cards/new
-/rates/rate-cards/[id]
+/dashboard/rates/zones
+/dashboard/rates/rate-cards
+/dashboard/rates/rate-cards/new
+/dashboard/rates/rate-cards/[id]
 
-/integrations
+/dashboard/integrations
 
-/agents
-/agents/new
-/agents/[id]
+/dashboard/agents
+/dashboard/agents/new
+/dashboard/agents/[id]
 
-/bookings
-/bookings/new
-/bookings/import
-/bookings/quotes
-/bookings/[id]
+/dashboard/bookings
+/dashboard/bookings/new
+/dashboard/bookings/import
+/dashboard/bookings/quotes
+/dashboard/bookings/[id]
 
-/tracking/[awb]
+/tracking/[awb]                   (public, no auth — sits at frontend root)
 
-/settings/profile
-/settings/domain
-/settings/notifications
-/settings/billing
+/dashboard/settings/profile
+/dashboard/settings/domain
+/dashboard/settings/notifications
+/dashboard/settings/billing
 ```
 
 ### Page Details
@@ -289,22 +286,22 @@ If `Tenant.profile_complete = false` → redirect to `/setup` regardless of inte
 - Table: Recent bookings with status
 - Chart: Booking volume over time
 
-**`/rates/zones`**
+**`/dashboard/rates/zones`**
 - List of zones: name, country/city count, rate card count
 - Create/edit zone: name + multi-select countries + optional cities
 
-**`/rates/rate-cards`**
+**`/dashboard/rates/rate-cards`**
 - List: name, type (zone/route/flat), linked carrier, weight tiers count, active status
 - Filter by type, carrier, active
 
-**`/rates/rate-cards/new` + `/[id]`** — Rate card builder:
+**`/dashboard/rates/rate-cards/new` + `/[id]`** — Rate card builder:
 1. Pick type: Zone-based | Route-based | Flat
 2. Set origin + destination (zone selector OR country/city fields)
 3. Optionally link to a delivery integration (TenantIntegration)
 4. Add weight tiers (min_kg → max_kg → price_per_kg + optional flat_price)
 5. Set currency → save
 
-**`/integrations`**
+**`/dashboard/integrations`**
 - Grid of all available integrations, grouped by category
 
   *Delivery Partners:* DHL, Aramex, UPS, Nepal Post, Emirates Post, Nepal Can Move, Sajha Courier, Upaya Courier, DTDC, Delhivery, Indian Post, Thailand Post, Japan Post, Malaysian Post, Nepex Cargo (internal)
@@ -317,21 +314,21 @@ If `Tenant.profile_complete = false` → redirect to `/setup` regardless of inte
 - Save → system tests the connection → shows `test_status` (success/failed)
 - Toggle OFF → deactivates integration (credentials preserved)
 
-**`/agents`**
+**`/dashboard/agents`**
 - List: name, email, account type, wallet balance / credit limit + used, scope regions, active status
 - Inline actions: top-up wallet (regular), adjust credit limit (credit), activate/deactivate
 
-**`/agents/new` + `/[id]`**
+**`/dashboard/agents/new` + `/[id]`**
 - Fields: first name, last name, email, phone
 - Scope: regions (country/city multi-select), service types (international/domestic/local)
 - Account type: Regular (set initial wallet balance) or Credit (set credit limit)
 - On create: user account created → invite email sent → agent sets password
 
-**`/bookings`**
+**`/dashboard/bookings`**
 - List with filters: status, date range, carrier, agent, origin, destination
 - Columns: AWB, sender, receiver, carrier, weight, status, created by, date, total
 
-**`/bookings/new`** — Manual booking wizard (mirrors Figma design):
+**`/dashboard/bookings/new`** — Manual booking wizard (mirrors Figma design):
 1. **Shipment Details** — add parcels (dimensions, weight, contents, value), sending from/to countries, handling flags
 2. **Sender Details** — name, org (optional), email, phone, return address (search or manual)
 3. **Receiver Details** — name, org (optional), email, phone, delivery address (search or manual)
@@ -340,17 +337,17 @@ If `Tenant.profile_complete = false` → redirect to `/setup` regardless of inte
 6. **Confirm** — summary of all details + price breakdown → "Confirm and add to cart" / confirm booking
 7. On confirm: generate `airwaybill_number`, create `BookingDocument` records (airwaybill + invoice)
 
-**`/bookings/import`**
+**`/dashboard/bookings/import`**
 - Upload CSV or Excel
 - Field mapping UI (map CSV columns to booking fields)
 - Validation preview (highlight errors before import)
 - Submit → bulk create bookings
 
-**`/bookings/quotes`**
+**`/dashboard/bookings/quotes`**
 - List of inbound `QuoteRequest` records: origin, destination, weight, requester email, date
-- Actions: Accept (converts to booking in `/bookings/new` with fields pre-filled) | Reject
+- Actions: Accept (converts to booking in `/dashboard/bookings/new` with fields pre-filled) | Reject
 
-**`/bookings/[id]`**
+**`/dashboard/bookings/[id]`**
 - Full booking detail: sender, receiver, parcels, carrier, protection, price breakdown
 - Documents section: download airwaybill, commercial invoice, customs invoice
 - Status history timeline
@@ -360,24 +357,25 @@ If `Tenant.profile_complete = false` → redirect to `/setup` regardless of inte
 - Status timeline for a shipment
 - Shareable public URL (no auth required to view)
 
-**`/settings/profile`** — Edit company profile fields
+**`/dashboard/settings/profile`** — Edit company profile fields
 
-**`/settings/domain`**
+**`/dashboard/settings/domain`**
+- Configures the partner's white-labeled **public site** domain (e.g. `dhl-nepal.com → frontend/`). Does **not** configure a dashboard subdomain — the dashboard always lives at `nepexcargo.com/dashboard/*`.
 - Current domain(s) in `tenant_domain` table
 - Add custom domain → enter domain → system generates a DNS TXT/CNAME record to verify → verify → active
 
-**`/settings/notifications`** — Toggle email/SMS notifications (booking confirmed, status updates, payment received)
+**`/dashboard/settings/notifications`** — Toggle email/SMS notifications (booking confirmed, status updates, payment received)
 
-**`/settings/billing`** — Current plan, usage vs limits, upgrade CTA, invoice history
+**`/dashboard/settings/billing`** — Current plan, usage vs limits, upgrade CTA, invoice history
 
 ### Agent Role Restrictions
 
 When `role = agent`, the following are hidden/inaccessible:
-- `/rates/*`
-- `/integrations`
-- `/agents/*` (agents cannot manage other agents)
-- `/settings/billing`, `/settings/domain`
-- `/bookings` is scoped: only bookings created within `Agent.scope_regions` + `Agent.scope_service_types`
+- `/dashboard/rates/*`
+- `/dashboard/integrations`
+- `/dashboard/agents/*` (agents cannot manage other agents)
+- `/dashboard/settings/billing`, `/dashboard/settings/domain`
+- `/dashboard/bookings` is scoped: only bookings created within `Agent.scope_regions` + `Agent.scope_service_types`
 - Wallet/credit balance visible in the top navigation bar
 
 ---
@@ -418,7 +416,7 @@ Build in this sequence so each layer unblocks the next:
 1. **Backend — new entities + migrations** (Tenant.slug, Zone, RateCard, WeightTier, TenantIntegration, Agent, Booking, BookingParcel, BookingDocument, BookingStatusHistory, QuoteRequest)
 2. **Backend — new API routes** (auth, profile, rates, integrations, agents, bookings, tracking, super-admin routes)
 3. **`admin/` app** — scaffold Next.js, implement login → tenant list → onboard tenant → plan management → impersonation
-4. **`dashboard/` app** — scaffold Next.js, implement login → profile setup gate → dashboard → integrations → rates → agents → bookings (manual) → bookings (import + quotes) → tracking → settings
+4. **`frontend/` — add `/dashboard/*` route group** — middleware role-gate (customer → redirect home; partner_owner/agent → proceed) → profile setup gate at `/dashboard/setup` → `/dashboard` index → integrations → rates → agents → bookings (manual) → bookings (import + quotes) → tracking → settings
 
 ---
 
@@ -428,4 +426,4 @@ Build in this sequence so each layer unblocks the next:
 - Public-facing quote + booking flow on `frontend/` (separate spec)
 - Notification delivery implementation (email/SMS provider wiring)
 - Document PDF generation engine (airwaybill, invoice templates)
-- CI/CD pipeline for `admin/` and `dashboard/` apps
+- CI/CD pipeline for the new `admin/` app
