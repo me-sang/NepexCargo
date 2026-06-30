@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { RateCardType, WeightUnit, ZoneFor } from '../enums/rate.enums';
+import { RateCardType, WeightUnit } from '../enums/rate.enums';
 
 // ── Zone ───────────────────────────────────────────────────────────────────────
 
 export const createZoneSchema = z.object({
   name: z.string().min(1).max(255).trim(),
-  zoneFor: z.nativeEnum(ZoneFor),
+  /** ISO 3166-1 alpha-2 country codes this zone is designated for. Omit if purpose-agnostic. */
+  zoneFor: z.array(z.string().length(2).toUpperCase()).optional(),
   /** ISO 3166-1 alpha-2 codes. Must have at least one country. */
   countries: z.array(z.string().length(2).toUpperCase()).min(1),
   cities: z.array(z.string().min(1).max(255)).default([]),
@@ -37,7 +38,7 @@ export type WeightTierDTO = z.infer<typeof weightTierSchema>;
 // ── RateCard ───────────────────────────────────────────────────────────────────
 
 const baseRateCardFields = {
-  name: z.string().min(1).max(255).trim(),
+  name: z.string().min(1).max(255).trim().optional(),
   /** ISO 4217 currency code, e.g. "USD". */
   currency: z.string().length(3).default('USD'),
   weightUnit: z.nativeEnum(WeightUnit).default(WeightUnit.KG),
@@ -94,7 +95,7 @@ export type WeightTierResponse = {
 export type ZoneResponse = {
   id: string;
   name: string;
-  zoneFor: ZoneFor;
+  zoneFor?: string[];
   countries: string[];
   cities: string[];
   createdAt: Date;
@@ -103,7 +104,7 @@ export type ZoneResponse = {
 
 export type RateCardResponse = {
   id: string;
-  name: string;
+  name: string | null;
   type: RateCardType;
   currency: string;
   weightUnit: WeightUnit;
