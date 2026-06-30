@@ -124,11 +124,14 @@ registry.registerPath({
   method: 'delete',
   path: '/admin/subscriptions/{id}',
   tags: ['Super Admin — Subscriptions'],
-  summary: 'Delete a subscription',
+  summary: 'Cancel a subscription (sets status = cancelled, no data is removed)',
   security: [{ BearerAuth: [] }],
   request: { params: z.object({ id: z.string().uuid() }) },
   responses: {
-    204: { description: 'Subscription deleted' },
+    200: {
+      description: 'Subscription cancelled',
+      content: { 'application/json': { schema: SuccessData(SubscriptionSchema) } },
+    },
     401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
     404: { description: 'Subscription not found', content: { 'application/json': { schema: ErrorResponse } } },
   },

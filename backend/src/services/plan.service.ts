@@ -1,18 +1,11 @@
-import { In } from 'typeorm';
 import { AppDataSource } from '@database/data-source';
-import { Plan, PlanFeature, TenantPlan } from '@database/entities';
+import { Plan, PlanFeature } from '@database/entities';
 import { planRepository } from '@database/repositories';
-import { TenantPlanStatus } from '@common/enums/tenant.enums';
-import {
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-} from '@common/exceptions/app.exception';
+import { NotFoundException, ConflictException } from '@common/exceptions/app.exception';
 import type { CreatePlanDTO, UpdatePlanDTO } from '@common/dto/plan.dto';
 
 export class PlanService {
   private planRepo = AppDataSource.getRepository(Plan);
-  private tenantPlanRepo = AppDataSource.getRepository(TenantPlan);
 
   async listPlans(): Promise<Plan[]> {
     return planRepository.find({
@@ -83,23 +76,11 @@ export class PlanService {
     return this.getPlan(id);
   }
 
-  async deletePlan(id: string): Promise<void> {
-    await this.getPlan(id);
-
-    const activeCount = await this.tenantPlanRepo.count({
-      where: {
-        planId: id,
-        status: In([TenantPlanStatus.ACTIVE, TenantPlanStatus.TRIAL, TenantPlanStatus.PAUSED]),
-      },
-    });
-
-    if (activeCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete plan: ${activeCount} tenant(s) have an active subscription on this plan`,
-      );
-    }
-
-    await this.planRepo.delete(id);
+  async deletePlan(id: string): Promise<Plan> {
+    const plan = await this.getPlan(id);
+    plan.isActive = false;
+    await this.planRepo.save(plan);
+    return this.getPlan(id);
   }
 }
 

@@ -50,8 +50,8 @@ export async function updateSubscription(req: Request, res: Response, next: Next
 
 export async function deleteSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    await subscriptionService.deleteSubscription(req.params.id);
-    ApiResponse.noContent(res);
+    const subscription = await subscriptionService.deleteSubscription(req.params.id);
+    ApiResponse.success(res, subscription);
   } catch (error) {
     next(error);
   }
