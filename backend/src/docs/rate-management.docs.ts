@@ -108,6 +108,152 @@ const CreateRouteRateCardBody = registry.register(
 
 const UpdateRateCardBody = registry.register('UpdateRateCardBody', updateRateCardSchema);
 
+// ── Import/Export Paths ───────────────────────────────────────────────────────
+
+registry.registerPath({
+  method: 'get',
+  path: '/tenant/zones/sample',
+  tags: ['Tenant — Zones'],
+  summary: 'Download a sample zones CSV/Excel template for import',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: z.object({ format: z.enum(['csv', 'xlsx']).optional().describe('Output format (default: xlsx)') }),
+  },
+  responses: {
+    200: { description: 'Sample file download (text/csv or .xlsx)' },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/tenant/zones/export',
+  tags: ['Tenant — Zones'],
+  summary: 'Export all zones as CSV/Excel (partner_owner or manager)',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: z.object({ format: z.enum(['csv', 'xlsx']).optional().describe('Output format (default: xlsx)') }),
+  },
+  responses: {
+    200: { description: 'Zones file download (text/csv or .xlsx)' },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    403: { description: 'Insufficient role', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/tenant/zones/import',
+  tags: ['Tenant — Zones'],
+  summary: 'Import zones from a CSV/Excel file (partner_owner or manager). Upserts by zone_name.',
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      description: 'Multipart file upload (field name: file). Columns: zone_name, country (ISO2).',
+      content: { 'multipart/form-data': { schema: z.object({ file: z.instanceof(File) }) } },
+    },
+  },
+  responses: {
+    202: {
+      description: 'Import queued — poll /tenant/import/status/{jobId} for result',
+      content: {
+        'application/json': {
+          schema: SuccessData(z.object({ jobId: z.string(), message: z.string() })),
+        },
+      },
+    },
+    400: { description: 'No file or invalid format', content: { 'application/json': { schema: ErrorResponse } } },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    403: { description: 'Insufficient role', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/tenant/rates/sample',
+  tags: ['Tenant — Rate Cards'],
+  summary: 'Download a sample rates CSV/Excel template for import',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: z.object({ format: z.enum(['csv', 'xlsx']).optional().describe('Output format (default: xlsx)') }),
+  },
+  responses: {
+    200: { description: 'Sample file download (text/csv or .xlsx)' },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/tenant/rates/export',
+  tags: ['Tenant — Rate Cards'],
+  summary: 'Export all rate cards as a weight × zone matrix CSV/Excel (partner_owner or manager)',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: z.object({ format: z.enum(['csv', 'xlsx']).optional().describe('Output format (default: xlsx)') }),
+  },
+  responses: {
+    200: { description: 'Rates matrix file download (text/csv or .xlsx)' },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    403: { description: 'Insufficient role', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/tenant/rates/import',
+  tags: ['Tenant — Rate Cards'],
+  summary: 'Import rates from a weight × zone matrix CSV/Excel (partner_owner or manager). Upserts rate cards and tiers.',
+  security: [{ BearerAuth: [] }],
+  request: {
+    body: {
+      description: 'Multipart file upload (field name: file). Columns: weight_kg, <zone names...>, type, origin_country.',
+      content: { 'multipart/form-data': { schema: z.object({ file: z.instanceof(File) }) } },
+    },
+  },
+  responses: {
+    202: {
+      description: 'Import queued — poll /tenant/import/status/{jobId} for result',
+      content: {
+        'application/json': {
+          schema: SuccessData(z.object({ jobId: z.string(), message: z.string() })),
+        },
+      },
+    },
+    400: { description: 'No file or invalid format', content: { 'application/json': { schema: ErrorResponse } } },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    403: { description: 'Insufficient role', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/tenant/import/status/{jobId}',
+  tags: ['Tenant — Zones', 'Tenant — Rate Cards'],
+  summary: 'Poll the status of a zone or rate import job',
+  security: [{ BearerAuth: [] }],
+  request: { params: z.object({ jobId: z.string() }) },
+  responses: {
+    200: {
+      description: 'Job status',
+      content: {
+        'application/json': {
+          schema: SuccessData(
+            z.object({
+              jobId: z.string(),
+              state: z.enum(['waiting', 'active', 'completed', 'failed', 'delayed', 'unknown']),
+              result: z.record(z.unknown()).optional().describe('Present when state=completed'),
+              error: z.string().optional().describe('Present when state=failed'),
+            }),
+          ),
+        },
+      },
+    },
+    401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
+    404: { description: 'Job not found', content: { 'application/json': { schema: ErrorResponse } } },
+  },
+});
+
 // ── Zone Paths ────────────────────────────────────────────────────────────────
 
 registry.registerPath({
