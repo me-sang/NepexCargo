@@ -11,3 +11,6 @@ export { TenantConfiguration } from './tenant-configuration.entity';
 export { TenantUsage } from './tenant-usage.entity';
 export { Country } from './country.entity';
 export { SuperAdmin, SuperAdminStatus } from './super-admin.entity';
+export { Zone } from './zone.entity';
+export { RateCard } from './rate-card.entity';
+export { WeightTier } from './weight-tier.entity';
