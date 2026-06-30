@@ -41,8 +41,8 @@ export async function updatePlan(req: Request, res: Response, next: NextFunction
 
 export async function deletePlan(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    await planService.deletePlan(req.params.id);
-    ApiResponse.noContent(res);
+    const plan = await planService.deletePlan(req.params.id);
+    ApiResponse.success(res, plan);
   } catch (error) {
     next(error);
   }

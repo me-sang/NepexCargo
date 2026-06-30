@@ -1,6 +1,7 @@
 import { AppDataSource } from '@database/data-source';
 import { TenantPlan } from '@database/entities';
 import { tenantPlanRepository, tenantRepository, planRepository } from '@database/repositories';
+import { TenantPlanStatus } from '@common/enums/tenant.enums';
 import { NotFoundException, BadRequestException } from '@common/exceptions/app.exception';
 import type {
   CreateSubscriptionDTO,
@@ -68,9 +69,11 @@ export class SubscriptionService {
     return this.getSubscription(id);
   }
 
-  async deleteSubscription(id: string): Promise<void> {
-    await this.getSubscription(id);
-    await this.tenantPlanRepo.delete(id);
+  async deleteSubscription(id: string): Promise<TenantPlan> {
+    const subscription = await this.getSubscription(id);
+    subscription.status = TenantPlanStatus.CANCELLED;
+    await this.tenantPlanRepo.save(subscription);
+    return this.getSubscription(id);
   }
 }
 

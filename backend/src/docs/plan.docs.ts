@@ -128,14 +128,13 @@ registry.registerPath({
   method: 'delete',
   path: '/admin/plans/{id}',
   tags: ['Super Admin — Plans'],
-  summary: 'Delete a plan — blocked if any tenants have active subscriptions',
+  summary: 'Deactivate a plan (sets isActive = false, existing subscriptions unaffected)',
   security: [{ BearerAuth: [] }],
   request: { params: z.object({ id: z.string().uuid() }) },
   responses: {
-    204: { description: 'Plan deleted' },
-    400: {
-      description: 'Cannot delete — active tenant subscriptions exist',
-      content: { 'application/json': { schema: ErrorResponse } },
+    200: {
+      description: 'Plan deactivated',
+      content: { 'application/json': { schema: SuccessData(PlanSchema) } },
     },
     401: { description: 'Unauthorized', content: { 'application/json': { schema: ErrorResponse } } },
     404: { description: 'Plan not found', content: { 'application/json': { schema: ErrorResponse } } },
