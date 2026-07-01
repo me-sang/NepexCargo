@@ -12,7 +12,7 @@ import {
 import { RateCardType, WeightUnit } from '../../common/enums/rate.enums';
 import { Tenant } from './tenant.entity';
 import { Zone } from './zone.entity';
-import { TenantConfiguration } from './tenant-configuration.entity';
+import { Integration } from './integration.entity';
 import { WeightTier } from './weight-tier.entity';
 
 @Entity('rate_cards')
@@ -85,9 +85,9 @@ export class RateCard {
   @JoinColumn({ name: 'destinationZoneId' })
   destinationZone: Zone | null;
 
-  @ManyToOne(() => TenantConfiguration, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Integration, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'integrationId' })
-  integration: TenantConfiguration | null;
+  integration: Integration | null;
 
   @OneToMany(() => WeightTier, (tier) => tier.rateCard, { cascade: true })
   weightTiers: WeightTier[];

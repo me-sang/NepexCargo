@@ -14,3 +14,4 @@ export { SuperAdmin, SuperAdminStatus } from './super-admin.entity';
 export { Zone } from './zone.entity';
 export { RateCard } from './rate-card.entity';
 export { WeightTier } from './weight-tier.entity';
+export { Integration } from './integration.entity';
