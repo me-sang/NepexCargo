@@ -15,3 +15,5 @@ export { Zone } from './zone.entity';
 export { RateCard } from './rate-card.entity';
 export { WeightTier } from './weight-tier.entity';
 export { Integration } from './integration.entity';
+export { Agent } from './agent.entity';
+export { Booking } from './booking.entity';
