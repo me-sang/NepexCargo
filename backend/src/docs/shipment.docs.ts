@@ -16,6 +16,12 @@ const TierResult = z.object({
   total: z.number().describe('price + flatPrice'),
 });
 
+const IntegrationRef = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  logoUrl: z.string().nullable(),
+});
+
 const RateOption = registry.register(
   'RateOption',
   z.object({
@@ -25,6 +31,7 @@ const RateOption = registry.register(
     weightUnit: z.nativeEnum(WeightUnit),
     chargeableWeight: z.number().describe('Input weight converted to the rate card unit'),
     destinationZone: ZoneRef,
+    integration: IntegrationRef.nullable().describe('Courier integration linked to this rate card'),
     tier: TierResult.nullable().describe('null when weight exceeds all defined tiers'),
   }),
 );
