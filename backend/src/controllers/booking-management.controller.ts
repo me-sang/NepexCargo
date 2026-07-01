@@ -2,23 +2,29 @@ import { Request, Response, NextFunction } from 'express';
 import { bookingManagementService } from '@services/booking-management.service';
 import { ApiResponse } from '@common/helpers/api-response.helper';
 import { ForbiddenException } from '@common/exceptions/app.exception';
-import type { CreateBookingDTO, UpdateBookingStatusDTO, ListBookingsQuery } from '@common/dto/booking.dto';
+import type { CreateBookingDTO, ListBookingsQuery } from '@common/dto/booking.dto';
 
-function tenantId(req: Request): string {
-  const id = req.user?.tenantId;
-  if (!id) throw new ForbiddenException('No tenant associated with this account');
-  return id;
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function resolveUser(req: Request): { userId: string; tenantId: string } {
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
+
+  if (!userId) throw new ForbiddenException('Authentication required');
+  if (!tenantId) throw new ForbiddenException('Your account is not associated with any tenant');
+
+  return { userId, tenantId };
 }
 
-function userId(req: Request): string {
-  const id = req.user?.id;
-  if (!id) throw new ForbiddenException('Unauthenticated');
-  return id;
-}
+// ── Handlers ───────────────────────────────────────────────────────────────────
 
 export async function listBookings(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const result = await bookingManagementService.list(tenantId(req), req.query as unknown as ListBookingsQuery);
+    const { userId, tenantId } = resolveUser(req);
+    const query = req.query as unknown as ListBookingsQuery;
+
+    const result = await bookingManagementService.list(tenantId, userId, query);
+
     ApiResponse.paginated(res, result.bookings, {
       total: result.total,
       page: result.page,
@@ -32,7 +38,8 @@ export async function listBookings(req: Request, res: Response, next: NextFuncti
 
 export async function createBooking(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const booking = await bookingManagementService.create(tenantId(req), userId(req), req.body as CreateBookingDTO);
+    const { userId, tenantId } = resolveUser(req);
+    const booking = await bookingManagementService.create(tenantId, userId, req.body as CreateBookingDTO);
     ApiResponse.created(res, booking);
   } catch (error) {
     next(error);
@@ -41,20 +48,8 @@ export async function createBooking(req: Request, res: Response, next: NextFunct
 
 export async function getBooking(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const booking = await bookingManagementService.getById(tenantId(req), req.params.id);
-    ApiResponse.success(res, booking);
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function updateBookingStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const booking = await bookingManagementService.updateStatus(
-      tenantId(req),
-      req.params.id,
-      req.body as UpdateBookingStatusDTO,
-    );
+    const { userId, tenantId } = resolveUser(req);
+    const booking = await bookingManagementService.getById(tenantId, userId, req.params.id);
     ApiResponse.success(res, booking);
   } catch (error) {
     next(error);
@@ -63,7 +58,8 @@ export async function updateBookingStatus(req: Request, res: Response, next: Nex
 
 export async function cancelBooking(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const booking = await bookingManagementService.cancel(tenantId(req), req.params.id);
+    const { userId, tenantId } = resolveUser(req);
+    const booking = await bookingManagementService.cancel(tenantId, userId, req.params.id);
     ApiResponse.success(res, booking);
   } catch (error) {
     next(error);

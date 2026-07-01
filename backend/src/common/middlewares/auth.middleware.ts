@@ -87,3 +87,35 @@ export const checkRole = (roles: UserRole[]) => {
     return next();
   };
 };
+export const userAuth = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, env.JWT_SECRET) as { sub: string };
+    const userRepository = AppDataSource.getRepository(User);
+
+    userRepository
+      .findOne({
+        where: { id: decoded.sub },
+        relations: ['roles', 'roles.permissions'],
+      })
+      .then((user) => {
+        if (!user) {
+          return res.status(401).json({ success: false, message: 'User not found' });
+        }
+
+        req.user = user;
+        return next();
+      })
+      .catch((error) => {
+        logger.error('User auth middleware error', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      });
+  } catch (error) {
+    logger.error('User auth middleware error', error);
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+};

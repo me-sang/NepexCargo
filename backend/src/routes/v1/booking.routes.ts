@@ -1,26 +1,15 @@
 import { Router } from 'express';
-import { checkRole } from '@common/middlewares/auth.middleware';
+import { userAuth } from '@common/middlewares/auth.middleware';
 import { validate } from '@common/middlewares/validate.middleware';
-import { UserRole } from '@config/permission.enums';
-import { createBookingSchema, updateBookingStatusSchema, listBookingsQuerySchema } from '@common/dto/booking.dto';
-import {
-  listBookings,
-  createBooking,
-  getBooking,
-  updateBookingStatus,
-  cancelBooking,
-} from '@controllers/booking-management.controller';
+import { createBookingSchema, listBookingsQuerySchema } from '@common/dto/booking.dto';
+import { listBookings, createBooking, getBooking, cancelBooking } from '@controllers/booking-management.controller';
 
 export const bookingRoutes: Router = Router();
 
-// All booking routes require partner_owner or agent role
-const ownerOrAgent = checkRole([UserRole.PARTNER_OWNER, UserRole.AGENT]);
-const ownerOnly = checkRole([UserRole.PARTNER_OWNER]);
+// All routes require a valid user JWT
+bookingRoutes.use(userAuth);
 
-bookingRoutes.get('/', ownerOrAgent, validate(listBookingsQuerySchema, 'query'), listBookings);
-bookingRoutes.post('/', ownerOrAgent, validate(createBookingSchema), createBooking);
-
-// Static routes before /:id
-bookingRoutes.get('/:id', ownerOrAgent, getBooking);
-bookingRoutes.patch('/:id/status', ownerOnly, validate(updateBookingStatusSchema), updateBookingStatus);
-bookingRoutes.post('/:id/cancel', ownerOnly, cancelBooking);
+bookingRoutes.get('/', validate(listBookingsQuerySchema, 'query'), listBookings);
+bookingRoutes.post('/', validate(createBookingSchema), createBooking);
+bookingRoutes.get('/:id', getBooking);
+bookingRoutes.post('/:id/cancel', cancelBooking);

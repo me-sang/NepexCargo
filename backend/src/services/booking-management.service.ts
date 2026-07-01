@@ -1,9 +1,11 @@
 import { AppDataSource } from '@database/data-source';
 import { Booking } from '@database/entities/booking.entity';
 import { bookingRepository } from '@database/repositories/booking.repository';
-import { NotFoundException, BadRequestException } from '@common/exceptions/app.exception';
-import { BookingStatus } from '@common/enums/booking.enums';
-import type { CreateBookingDTO, UpdateBookingStatusDTO, ListBookingsQuery } from '@common/dto/booking.dto';
+import { NotFoundException, BadRequestException, ForbiddenException } from '@common/exceptions/app.exception';
+import { BookingSource, BookingStatus } from '@common/enums/booking.enums';
+import type { CreateBookingDTO, ListBookingsQuery } from '@common/dto/booking.dto';
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 function generateAwb(): string {
   const prefix = 'NPX';
@@ -12,29 +14,37 @@ function generateAwb(): string {
   return `${prefix}-${ts}-${rand}`;
 }
 
+const NON_CANCELLABLE = new Set([BookingStatus.DELIVERED, BookingStatus.IN_TRANSIT]);
+
+// ── Service ────────────────────────────────────────────────────────────────────
+
 class BookingManagementService {
   private repo = AppDataSource.getRepository(Booking);
 
   async list(
     tenantId: string,
+    userId: string,
     query: ListBookingsQuery,
   ): Promise<{ bookings: Booking[]; total: number; page: number; limit: number }> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
-    const [bookings, total] = await bookingRepository.findByTenant(tenantId, { page, limit, status: query.status });
+
+    const [bookings, total] = await bookingRepository.findByTenant(tenantId, {
+      page,
+      limit,
+      status: query.status,
+      createdByUserId: userId,
+    });
+
     return { bookings, total, page, limit };
   }
 
   async create(tenantId: string, userId: string, data: CreateBookingDTO): Promise<Booking> {
-    const airwayBillNumber = generateAwb();
-
     const booking = this.repo.create({
       tenantId,
       createdByUserId: userId,
-      airwayBillNumber,
-      source: data.source,
-      rateCardId: data.rateCardId ?? null,
-      integrationId: data.integrationId ?? null,
+      airwayBillNumber: generateAwb(),
+      source: BookingSource.MANUAL,
       sender: data.sender,
       receiver: data.receiver,
       shipmentDetails: data.shipmentDetails,
@@ -48,37 +58,27 @@ class BookingManagementService {
     return this.repo.save(booking);
   }
 
-  async getById(tenantId: string, id: string): Promise<Booking> {
-    const booking = await bookingRepository.findByTenantAndId(tenantId, id);
+  async getById(tenantId: string, userId: string, bookingId: string): Promise<Booking> {
+    const booking = await bookingRepository.findByTenantAndId(tenantId, bookingId, userId);
     if (!booking) throw new NotFoundException('Booking');
     return booking;
   }
 
-  async updateStatus(
-    tenantId: string,
-    id: string,
-    data: UpdateBookingStatusDTO,
-  ): Promise<Booking> {
-    const booking = await this.getById(tenantId, id);
+  async cancel(tenantId: string, userId: string, bookingId: string): Promise<Booking> {
+    const booking = await this.getById(tenantId, userId, bookingId);
 
-    if (booking.status === BookingStatus.CANCELLED) {
-      throw new BadRequestException('Cannot update status of a cancelled booking');
+    if (booking.createdByUserId !== userId) {
+      throw new ForbiddenException('You can only cancel your own bookings');
     }
 
-    booking.status = data.status;
-    if (data.notes) booking.notes = data.notes;
+    if (NON_CANCELLABLE.has(booking.status)) {
+      throw new BadRequestException(
+        `Booking cannot be cancelled once it is ${booking.status.replace('_', ' ')}`,
+      );
+    }
 
-    return this.repo.save(booking);
-  }
-
-  async cancel(tenantId: string, id: string): Promise<Booking> {
-    const booking = await this.getById(tenantId, id);
-
-    if (
-      booking.status === BookingStatus.DELIVERED ||
-      booking.status === BookingStatus.IN_TRANSIT
-    ) {
-      throw new BadRequestException(`Cannot cancel a booking with status '${booking.status}'`);
+    if (booking.status === BookingStatus.CANCELLED) {
+      throw new BadRequestException('Booking is already cancelled');
     }
 
     booking.status = BookingStatus.CANCELLED;

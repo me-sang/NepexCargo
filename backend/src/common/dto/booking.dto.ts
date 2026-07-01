@@ -1,63 +1,54 @@
 import { z } from 'zod';
-import { BookingSource, BookingStatus, ProtectionType } from '@common/enums/booking.enums';
+import { BookingStatus, ProtectionType } from '@common/enums/booking.enums';
 import { WeightUnit } from '@common/enums/rate.enums';
 
 // ── Sub-schemas ────────────────────────────────────────────────────────────────
 
 const contactAddressSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(5),
-  addressLine1: z.string().min(1),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(5, 'Phone number is too short'),
+  addressLine1: z.string().min(1, 'Address is required'),
   addressLine2: z.string().optional(),
-  city: z.string().min(1),
+  city: z.string().min(1, 'City is required'),
   state: z.string().optional(),
   zip: z.string().optional(),
-  /** ISO 3166-1 alpha-2 */
-  country: z.string().length(2).toUpperCase(),
+  country: z.string().length(2, 'Must be a 2-letter ISO country code').toUpperCase(),
 });
 
-const dimensionUnitEnum = z.enum(['cm', 'in']);
-
 const shipmentItemSchema = z.object({
-  weight: z.number().positive(),
+  weight: z.number().positive('Weight must be positive'),
   weightUnit: z.nativeEnum(WeightUnit),
   dimensions: z.object({
-    length: z.number().positive(),
-    width: z.number().positive(),
-    height: z.number().positive(),
-    dimensionUnit: dimensionUnitEnum,
+    length: z.number().positive('Length must be positive'),
+    width: z.number().positive('Width must be positive'),
+    height: z.number().positive('Height must be positive'),
+    dimensionUnit: z.enum(['cm', 'in']),
   }),
   additionalService: z.string().optional(),
   remarks: z.string().optional(),
-  approxItemValue: z.number().min(0),
+  approxItemValue: z.number().min(0, 'Item value cannot be negative'),
 });
 
 // ── Create ─────────────────────────────────────────────────────────────────────
 
 export const createBookingSchema = z.object({
-  source: z.nativeEnum(BookingSource).default(BookingSource.MANUAL),
-  rateCardId: z.string().uuid().optional(),
-  integrationId: z.string().uuid().optional(),
   sender: contactAddressSchema,
   receiver: contactAddressSchema,
-  shipmentDetails: z.array(shipmentItemSchema).min(1, 'At least one shipment item is required'),
+  shipmentDetails: z
+    .array(shipmentItemSchema)
+    .min(1, 'At least one shipment item is required'),
   protectionType: z.nativeEnum(ProtectionType).default(ProtectionType.FREE),
-  protectionValue: z.number().positive().optional(),
-  currency: z.string().length(3).toUpperCase().default('NPR'),
-  notes: z.string().optional(),
-});
+  /** Required only when protectionType is INSURED */
+  protectionValue: z.number().positive('Protection value must be positive').optional(),
+  currency: z.string().length(3, 'Must be a 3-letter ISO currency code').toUpperCase().default('NPR'),
+  notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
+}).refine(
+  (data) => data.protectionType !== ProtectionType.INSURED || data.protectionValue != null,
+  { message: 'protectionValue is required when protectionType is insured', path: ['protectionValue'] },
+);
 
 export type CreateBookingDTO = z.infer<typeof createBookingSchema>;
-
-// ── Update status ──────────────────────────────────────────────────────────────
-
-export const updateBookingStatusSchema = z.object({
-  status: z.nativeEnum(BookingStatus),
-  notes: z.string().optional(),
-});
-
-export type UpdateBookingStatusDTO = z.infer<typeof updateBookingStatusSchema>;
 
 // ── List query ─────────────────────────────────────────────────────────────────
 

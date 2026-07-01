@@ -5,7 +5,7 @@ import { BookingStatus } from '../../common/enums/booking.enums';
 export const bookingRepository = AppDataSource.getRepository(Booking).extend({
   async findByTenant(
     tenantId: string,
-    opts: { page: number; limit: number; status?: BookingStatus },
+    opts: { page: number; limit: number; status?: BookingStatus; createdByUserId?: string },
   ): Promise<[Booking[], number]> {
     const qb = this.createQueryBuilder('b')
       .where('b.tenantId = :tenantId', { tenantId })
@@ -14,13 +14,22 @@ export const bookingRepository = AppDataSource.getRepository(Booking).extend({
       .take(opts.limit);
 
     if (opts.status) qb.andWhere('b.status = :status', { status: opts.status });
+    // Scope to a specific user when caller is not an owner
+    if (opts.createdByUserId) qb.andWhere('b.createdByUserId = :uid', { uid: opts.createdByUserId });
 
     return qb.getManyAndCount();
   },
 
-  async findByTenantAndId(tenantId: string, id: string): Promise<Booking | null> {
+  async findByTenantAndId(
+    tenantId: string,
+    id: string,
+    createdByUserId?: string,
+  ): Promise<Booking | null> {
+    const where: Record<string, unknown> = { id, tenantId };
+    if (createdByUserId) where.createdByUserId = createdByUserId;
+
     return this.findOne({
-      where: { id, tenantId },
+      where,
       relations: ['createdByUser', 'createdByAgent', 'rateCard', 'integration'],
     });
   },
