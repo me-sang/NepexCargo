@@ -11,3 +11,5 @@ export { tenantConfigurationRepository } from './tenant-configuration.repository
 export { tenantUsageRepository } from './tenant-usage.repository';
 export { countryRepository } from './country.repository';
 export { superAdminRepository } from './super-admin.repository';
+export { agentRepository } from './agent.repository';
+export { bookingRepository } from './booking.repository';

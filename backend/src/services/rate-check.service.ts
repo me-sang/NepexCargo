@@ -29,6 +29,7 @@ export interface RateOption {
   weightUnit: WeightUnit;
   chargeableWeight: number;
   destinationZone: { id: string; name: string };
+  integration: { id: string; name: string; logoUrl: string | null } | null;
   tier: {
     minWeight: number;
     maxWeight: number | null;
@@ -76,7 +77,7 @@ export async function checkRates(input: CheckRatesInput): Promise<CheckRatesResu
       originCountry: sourceLocation,
       destinationZoneId: destinationZone.id,
     },
-    relations: ['weightTiers'],
+    relations: ['weightTiers', 'integration'],
     order: { name: 'ASC' },
   });
 
@@ -107,6 +108,9 @@ export async function checkRates(input: CheckRatesInput): Promise<CheckRatesResu
       weightUnit: card.weightUnit as WeightUnit,
       chargeableWeight,
       destinationZone: zoneRef,
+      integration: card.integration
+        ? { id: card.integration.id, name: card.integration.name, logoUrl: card.integration.logoUrl }
+        : null,
       tier: tier
         ? {
             minWeight: Number(tier.minWeight),
