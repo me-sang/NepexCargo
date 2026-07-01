@@ -114,6 +114,14 @@ export class RateManagementService {
     const card = await this.getRateCard(tenantId, id);
     await this.rateCardRepo.remove(card);
   }
+  async getRateCardById(rateCardId: string, attributes?: (keyof RateCard)[]): Promise<RateCard | null> {
+    const card = await this.rateCardRepo.findOne({
+      where: { id: rateCardId },
+      select: attributes ? attributes : undefined,
+      relations: ['weightTiers', 'originZone', 'destinationZone'],
+    });
+    return card;
+  }
 }
 
 export const rateManagementService = new RateManagementService();
