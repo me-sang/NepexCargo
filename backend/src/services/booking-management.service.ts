@@ -3,7 +3,26 @@ import { Booking } from '@database/entities/booking.entity';
 import { bookingRepository } from '@database/repositories/booking.repository';
 import { NotFoundException, BadRequestException, ForbiddenException } from '@common/exceptions/app.exception';
 import { BookingSource, BookingStatus } from '@common/enums/booking.enums';
+import { WeightUnit } from '@common/enums/rate.enums';
+import { rateManagementService } from '@services/rate-management.service';
 import type { CreateBookingDTO, ListBookingsQuery } from '@common/dto/booking.dto';
+
+// ── Weight helpers ─────────────────────────────────────────────────────────────
+
+const TO_KG: Record<WeightUnit, number> = {
+  [WeightUnit.KG]: 1,
+  [WeightUnit.G]: 0.001,
+  [WeightUnit.LB]: 0.453592,
+  [WeightUnit.OZ]: 0.0283495,
+  [WeightUnit.TON]: 1000,
+};
+
+function totalWeightInUnit(items: CreateBookingDTO['shipmentDetails'], targetUnit: WeightUnit): number {
+  return items.reduce((sum, item) => {
+    const kg = item.weight * TO_KG[item.weightUnit as WeightUnit];
+    return sum + kg / TO_KG[targetUnit];
+  }, 0);
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -40,16 +59,48 @@ class BookingManagementService {
   }
 
   async create(tenantId: string, userId: string, data: CreateBookingDTO): Promise<Booking> {
+    const rateCard = await rateManagementService.getRateCardById(data.rateCardId);
+    if (!rateCard) throw new NotFoundException('Rate card');
+
+    const chargeableWeight = totalWeightInUnit(data.shipmentDetails, rateCard.weightUnit as WeightUnit);
+
+    const sortedTiers = [...(rateCard.weightTiers ?? [])].sort((a, b) => {
+      if (a.maxWeight === null) return 1;
+      if (b.maxWeight === null) return -1;
+      return Number(a.maxWeight) - Number(b.maxWeight);
+    });
+
+    const tier = sortedTiers.find(
+      (t) => t.maxWeight === null || Number(t.maxWeight) >= chargeableWeight,
+    ) ?? null;
+
+    if (!tier) {
+      throw new BadRequestException(
+        `No pricing tier covers the total chargeable weight of ${chargeableWeight.toFixed(3)} ${rateCard.weightUnit}`,
+      );
+    }
+
+    const shippingCost = Number(tier.pricePerUnit) + (tier.flatPrice !== null ? Number(tier.flatPrice) : 0);
+    const protectionCost = 0;
+    const tax = 0;
+    const total = shippingCost + protectionCost + tax;
+
     const booking = this.repo.create({
       tenantId,
       createdByUserId: userId,
       airwayBillNumber: generateAwb(),
       source: BookingSource.MANUAL,
+      rateCardId: rateCard.id,
+      integrationId: rateCard.integrationId ?? null,
       sender: data.sender,
       receiver: data.receiver,
       shipmentDetails: data.shipmentDetails,
       protectionType: data.protectionType,
       protectionValue: data.protectionValue ?? null,
+      shippingCost,
+      protectionCost,
+      tax,
+      total,
       currency: data.currency,
       notes: data.notes ?? null,
       status: BookingStatus.DRAFT,

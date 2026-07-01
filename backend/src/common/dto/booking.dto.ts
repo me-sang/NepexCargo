@@ -33,6 +33,7 @@ const shipmentItemSchema = z.object({
 // ── Create ─────────────────────────────────────────────────────────────────────
 
 export const createBookingSchema = z.object({
+  rateCardId: z.string().uuid('Invalid rate card ID'),
   sender: contactAddressSchema,
   receiver: contactAddressSchema,
   shipmentDetails: z

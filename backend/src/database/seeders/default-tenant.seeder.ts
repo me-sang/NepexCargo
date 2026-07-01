@@ -7,14 +7,14 @@ import { UserRole } from '../../config/permission.enums';
 import { env } from '../../config/env.config';
 import { logger } from '../../common/helpers/logger';
 
-const TENANT_CODE = 'NEPEX-001';
+export const DEFAULT_TENANT_CODE = 'NEPEX-001';
 const ENTERPRISE_PLAN_CODE = 'enterprise';
 
 export const defaultTenantSeeder = {
   name: '006-default-tenant',
   run: async (): Promise<void> => {
     // ── Guard — skip if tenant already exists ────────────────────────────────
-    const existing = await tenantRepository.findByCode(TENANT_CODE);
+    const existing = await tenantRepository.findByCode(DEFAULT_TENANT_CODE);
     if (existing) return;
 
     // ── Resolve dependencies ─────────────────────────────────────────────────
@@ -35,7 +35,7 @@ export const defaultTenantSeeder = {
 
       // ── 1. Create tenant ───────────────────────────────────────────────────
       const tenant = tenantRepo.create({
-        code: TENANT_CODE,
+        code: DEFAULT_TENANT_CODE,
         slug: 'nepex-cargo',
         legalName: 'Nepex Cargo LLC',
         displayName: 'Nepex Cargo',
