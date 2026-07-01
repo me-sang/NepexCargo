@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CountryDropdown } from "@/components/ui/CountryDropdown";
 
 type Unit = "kg" | "lb";
 
@@ -45,7 +46,7 @@ export function QuoteHeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative">
       <div
         aria-hidden="true"
         className="absolute inset-0 z-0 bg-cover bg-center"
@@ -79,27 +80,29 @@ export function QuoteHeroSection() {
       <div className="relative z-10 container-content -mt-24 lg:-mt-28 pb-16 lg:pb-20">
         <form
           onSubmit={handleSubmit}
-          className="rounded-[var(--radius-xl)] overflow-hidden shadow-[var(--shadow-float)] bg-white"
+          className="rounded-[var(--radius-xl)] shadow-[var(--shadow-float)] bg-white"
         >
-          <div className="bg-[var(--color-brand)] text-white text-center text-[14px] lg:text-[15px] font-semibold py-3.5 px-4">
+          <div className="bg-[var(--color-brand)] text-white text-center text-[14px] lg:text-[15px] font-semibold py-3.5 px-4 rounded-t-[var(--radius-xl)]">
             Get a instant quote without signing up
           </div>
 
-          <div className="p-5 lg:p-6 bg-white">
+          <div className="p-5 lg:p-6 bg-white rounded-b-[var(--radius-xl)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.2fr_1fr_0.7fr_auto] gap-4 lg:gap-5 items-end">
               <Field label="Ship From">
-                <CountrySelect
+                <CountryDropdown
                   value={from}
                   onChange={setFrom}
                   placeholder="Origin Country"
+                  buttonClassName="!h-12"
                 />
               </Field>
 
               <Field label="Ship To">
-                <CountrySelect
+                <CountryDropdown
                   value={to}
                   onChange={setTo}
                   placeholder="Destination Country"
+                  buttonClassName="!h-12"
                 />
               </Field>
 
@@ -163,39 +166,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function CountrySelect({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`h-12 w-full appearance-none rounded-[var(--radius-md)] bg-white border border-[var(--color-border)] pl-4 pr-9 text-[14px] focus:outline-none focus:border-[var(--color-accent)] ${
-          value ? "text-[var(--color-text)]" : "text-[#9CA3AF]"
-        }`}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {/* ponytail: hardcoded shortlist of ISO-2 codes. Replace with /countries fetch when backend exposes it. */}
-        {COUNTRIES.map((c) => (
-          <option key={c.code} value={c.code} className="text-[var(--color-text)]">
-            {c.name}
-          </option>
-        ))}
-      </select>
-      <ChevronIcon />
-    </div>
-  );
-}
-
 function ChevronIcon() {
   return (
     <svg
@@ -214,16 +184,3 @@ function ChevronIcon() {
     </svg>
   );
 }
-
-const COUNTRIES = [
-  { code: "NP", name: "Nepal" },
-  { code: "IN", name: "India" },
-  { code: "US", name: "United States" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "AU", name: "Australia" },
-  { code: "CA", name: "Canada" },
-  { code: "DE", name: "Germany" },
-  { code: "AE", name: "United Arab Emirates" },
-  { code: "JP", name: "Japan" },
-  { code: "SG", name: "Singapore" },
-];

@@ -30,7 +30,7 @@ export function CTASection() {
               fingertips. No commitments, no hidden fees.
             </p>
             <a
-              href="/quote"
+              href="/check-international-shipping-rates"
               className="mt-8 lg:mt-10 inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white text-[var(--color-text)] text-[14px] font-semibold hover:bg-white/95 transition-colors shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)]"
             >
               Get a Free Quote
