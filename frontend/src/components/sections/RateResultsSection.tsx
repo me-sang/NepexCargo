@@ -267,30 +267,46 @@ function RateRow({ rate }: { rate: Rate }) {
             )}
           </div>
 
-          <button
-            type="button"
-            disabled={outOfRange}
-            className="inline-flex items-center gap-2 h-10 lg:h-11 px-4 lg:px-5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white text-[13px] lg:text-[14px] font-semibold hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
-          >
-            Book Now
-            <svg
-              aria-hidden="true"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {outOfRange ? (
+            <button
+              type="button"
+              disabled
+              className="inline-flex items-center gap-2 h-10 lg:h-11 px-4 lg:px-5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white text-[13px] lg:text-[14px] font-semibold opacity-40 cursor-not-allowed whitespace-nowrap"
             >
-              <path d="M5 12h14" />
-              <path d="m13 6 6 6-6 6" />
-            </svg>
-          </button>
+              Book Now
+              <BookNowArrow />
+            </button>
+          ) : (
+            <Link
+              href={`/book-international-shipment?step=shipment&rateCardId=${rate.rateCardId}`}
+              className="inline-flex items-center gap-2 h-10 lg:h-11 px-4 lg:px-5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white text-[13px] lg:text-[14px] font-semibold hover:bg-[var(--color-accent-hover)] transition-colors whitespace-nowrap"
+            >
+              Book Now
+              <BookNowArrow />
+            </Link>
+          )}
         </div>
       </div>
     </article>
+  );
+}
+
+function BookNowArrow() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
   );
 }
 
