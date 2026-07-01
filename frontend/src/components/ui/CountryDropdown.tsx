@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { COUNTRIES, type Country } from "@/lib/countries";
+import {
+  FALLBACK_COUNTRIES,
+  getCountriesCache,
+  loadCountries,
+  type Country,
+} from "@/lib/countries";
 
 export function CountryDropdown({
   value,
   onChange,
   placeholder = "Select a country",
   required,
-  options = COUNTRIES,
+  options,
   buttonClassName = "",
 }: {
   value: string;
@@ -20,19 +25,34 @@ export function CountryDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [fetched, setFetched] = useState<Country[] | null>(() =>
+    getCountriesCache(),
+  );
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const selected = options.find((c) => c.code === value);
+  useEffect(() => {
+    if (options || fetched) return;
+    let cancelled = false;
+    loadCountries().then((list) => {
+      if (!cancelled) setFetched(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [options, fetched]);
+
+  const list = options ?? fetched ?? FALLBACK_COUNTRIES;
+  const selected = list.find((c) => c.code === value);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter(
+    if (!q) return list;
+    return list.filter(
       (c) =>
         c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q),
     );
-  }, [query, options]);
+  }, [query, list]);
 
   useEffect(() => {
     if (!open) return;

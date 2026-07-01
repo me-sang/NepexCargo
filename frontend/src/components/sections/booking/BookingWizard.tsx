@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   ShipmentStep,
   PartyStep,
@@ -11,6 +13,11 @@ import {
 } from "./BookingSteps";
 import type { BookingState } from "./BookingSteps";
 import { initialBookingState } from "./BookingSteps";
+import {
+  createBooking,
+  validateBookingState,
+  type Booking,
+} from "@/lib/bookings";
 
 const STEPS = [
   { slug: "shipment", label: "Shipment Details" },
@@ -25,6 +32,8 @@ type StepSlug = (typeof STEPS)[number]["slug"];
 export function BookingWizard() {
   const router = useRouter();
   const params = useSearchParams();
+  const pathname = usePathname();
+  const { data: session } = useSession();
   const rawStep = params.get("step") as StepSlug | null;
   const currentIndex = Math.max(
     0,
@@ -34,7 +43,9 @@ export function BookingWizard() {
   const idx = currentIndex === -1 ? 0 : currentIndex;
 
   const [state, setState] = useState<BookingState>(initialBookingState);
-  const [submitted, setSubmitted] = useState(false);
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function goTo(nextIdx: number) {
     const clamped = Math.min(STEPS.length - 1, Math.max(0, nextIdx));
@@ -44,11 +55,39 @@ export function BookingWizard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  async function handleFinalSubmit() {
+    setSubmitError(null);
+    const validationError = validateBookingState(state);
+    if (validationError) {
+      setSubmitError(validationError);
+      return;
+    }
+    const token = session?.accessToken;
+    if (!token) {
+      const callback = encodeURIComponent(
+        `${pathname}?${params.toString()}`,
+      );
+      router.push(`/login?callbackUrl=${callback}`);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const rateCardId = params.get("rateCardId") ?? undefined;
+      const created = await createBooking(state, token, rateCardId);
+      setBooking(created);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Booking failed. Try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function handleNext(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isLast) {
-      // ponytail: no submit endpoint yet — success screen only.
-      setSubmitted(true);
+      void handleFinalSubmit();
       return;
     }
     goTo(idx + 1);
@@ -58,11 +97,11 @@ export function BookingWizard() {
   const isLast = idx === STEPS.length - 1;
   const sidebar = getSidebar(current.slug);
 
-  if (submitted) return <SuccessScreen />;
+  if (booking) return <SuccessScreen booking={booking} />;
 
   return (
     <div className="container-content py-8 lg:py-12">
-      <Stepper current={idx} />
+      <Stepper current={idx} onSelect={goTo} />
 
       <div
         className={`mt-6 grid grid-cols-1 gap-6 ${
@@ -102,21 +141,36 @@ export function BookingWizard() {
             <ConfirmStep state={state} setState={setState} />
           )}
 
+          {isLast && submitError && (
+            <p
+              role="alert"
+              className="mt-6 rounded-[var(--radius-md)] border border-[var(--color-alert)]/40 bg-[var(--color-alert)]/10 px-4 py-3 text-[13px] text-[var(--color-alert)]"
+            >
+              {submitError}
+            </p>
+          )}
+
           <div className="mt-8 flex items-center justify-end gap-3">
             {!isFirst && (
               <button
                 type="button"
                 onClick={() => goTo(idx - 1)}
-                className="h-11 px-6 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white text-[14px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors"
+                disabled={submitting}
+                className="h-11 px-6 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white text-[14px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Back
               </button>
             )}
             <button
               type="submit"
-              className="h-11 px-6 rounded-[var(--radius-md)] bg-[#22C55E] text-white text-[14px] font-semibold hover:bg-[#16A34A] transition-colors"
+              disabled={submitting}
+              className="h-11 px-6 rounded-[var(--radius-md)] bg-[#22C55E] text-white text-[14px] font-semibold hover:bg-[#16A34A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isLast ? "Confirm and add to cart" : "Next"}
+              {isLast
+                ? submitting
+                  ? "Confirming…"
+                  : "Confirm and add to cart"
+                : "Next"}
             </button>
           </div>
         </form>
@@ -140,18 +194,32 @@ function getSidebar(slug: StepSlug) {
   }
 }
 
-function Stepper({ current }: { current: number }) {
+function Stepper({
+  current,
+  onSelect,
+}: {
+  current: number;
+  onSelect: (index: number) => void;
+}) {
   return (
     <ol className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white px-5 py-4 lg:px-8 lg:py-5 flex flex-wrap lg:flex-nowrap items-center gap-y-3">
       {STEPS.map((step, i) => {
         const isComplete = i <= current;
         const isLast = i === STEPS.length - 1;
+        const isActive = i === current;
         return (
           <li
             key={step.slug}
             className="flex items-center min-w-[180px] lg:min-w-0 lg:flex-1 lg:last:flex-none"
           >
-            <div className="flex items-center gap-2.5 shrink-0 lg:min-w-[210px]">
+            <button
+              type="button"
+              onClick={() => onSelect(i)}
+              aria-current={isActive ? "step" : undefined}
+              className={`flex items-center gap-2.5 shrink-0 lg:min-w-[210px] rounded-md px-1.5 py-1 -mx-1.5 -my-1 transition-colors hover:bg-[var(--color-surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/40 ${
+                isActive ? "cursor-default" : "cursor-pointer"
+              }`}
+            >
               <span
                 aria-hidden="true"
                 className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold shrink-0 ${
@@ -186,7 +254,7 @@ function Stepper({ current }: { current: number }) {
               >
                 {step.label}
               </span>
-            </div>
+            </button>
             {!isLast && (
               <span
                 aria-hidden="true"
@@ -501,13 +569,13 @@ function AlertSmallIcon() {
   );
 }
 
-function SuccessScreen() {
+function SuccessScreen({ booking }: { booking: Booking }) {
   return (
     <div className="container-content py-16 lg:py-24">
       <div className="mx-auto max-w-[560px] rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white p-8 lg:p-10 text-center">
         <span
           aria-hidden="true"
-          className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-white"
+          className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#22C55E] text-white"
         >
           <svg
             width="26"
@@ -526,9 +594,26 @@ function SuccessScreen() {
           Shipment booked
         </h2>
         <p className="mt-2 text-[14px] text-[var(--color-text-body)]">
-          We&apos;ve captured your details. You&apos;ll receive a confirmation
-          email shortly with next steps.
+          Your booking is confirmed. Track it under your dashboard.
         </p>
+        <dl className="mt-5 grid grid-cols-2 gap-3 text-left text-[13px] rounded-[var(--radius-md)] bg-[var(--color-surface)] p-4">
+          <dt className="text-[var(--color-text-body)]/75">Airway bill</dt>
+          <dd className="font-semibold text-[var(--color-text)] text-right">
+            {booking.airwayBillNumber}
+          </dd>
+          <dt className="text-[var(--color-text-body)]/75">Status</dt>
+          <dd className="font-semibold text-[var(--color-text)] text-right capitalize">
+            {booking.status.replace(/_/g, " ")}
+          </dd>
+        </dl>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link
+            href="/dashboard"
+            className="h-11 inline-flex items-center px-5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white text-[14px] font-semibold hover:bg-[var(--color-accent-hover)] transition-colors"
+          >
+            Go to dashboard
+          </Link>
+        </div>
       </div>
     </div>
   );

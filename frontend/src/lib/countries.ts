@@ -1,7 +1,8 @@
 export type Country = { code: string; name: string };
 
-// ISO-3166-1 alpha-2 codes (lowercase for flag-icons: `fi fi-<code>`).
-export const COUNTRIES: Country[] = [
+// Bootstrap list used before /countries resolves and as a fallback when the
+// backend is unreachable. Codes are ISO-3166-1 alpha-2, uppercase.
+export const FALLBACK_COUNTRIES: Country[] = [
   { code: "NP", name: "Nepal" },
   { code: "IN", name: "India" },
   { code: "US", name: "United States" },
@@ -60,6 +61,73 @@ export const COUNTRIES: Country[] = [
   { code: "NZ", name: "New Zealand" },
 ];
 
+/** @deprecated Use `loadCountries()` / `useCountries()` for live data. Kept for back-compat. */
+export const COUNTRIES = FALLBACK_COUNTRIES;
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const PAGE_SIZE = 200;
+
+type CountryDTO = { id: string; name: string; iso2: string };
+type CountriesResponse = {
+  success: boolean;
+  data?: CountryDTO[];
+  meta?: { page: number; limit: number; total: number; totalPages: number };
+};
+
+let cache: Country[] | null = null;
+let inflight: Promise<Country[]> | null = null;
+
+async function fetchPage(page: number): Promise<CountriesResponse> {
+  const res = await fetch(
+    `${API_URL}/countries?page=${page}&limit=${PAGE_SIZE}&isActive=true`,
+  );
+  if (!res.ok) throw new Error(`countries ${res.status}`);
+  return (await res.json()) as CountriesResponse;
+}
+
+function normalize(list: CountryDTO[]): Country[] {
+  return list
+    .map((c) => ({ code: c.iso2.toUpperCase(), name: c.name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function fetchAllCountries(): Promise<Country[]> {
+  const first = await fetchPage(1);
+  if (!first.success || !first.data) throw new Error("bad countries response");
+  const totalPages = first.meta?.totalPages ?? 1;
+  if (totalPages <= 1) return normalize(first.data);
+  const rest = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, i) =>
+      fetchPage(i + 2).then((r) => (r.success && r.data ? r.data : [])),
+    ),
+  );
+  return normalize([...first.data, ...rest.flat()]);
+}
+
+export function getCountriesCache(): Country[] | null {
+  return cache;
+}
+
+export function loadCountries(): Promise<Country[]> {
+  if (cache) return Promise.resolve(cache);
+  if (inflight) return inflight;
+  inflight = fetchAllCountries()
+    .then((list) => {
+      cache = list;
+      return list;
+    })
+    .catch(() => {
+      // ponytail: fall back to hardcoded on any error so the UI stays usable offline.
+      cache = FALLBACK_COUNTRIES;
+      return FALLBACK_COUNTRIES;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
+}
+
 export function countryName(code: string): string {
-  return COUNTRIES.find((c) => c.code === code)?.name ?? code;
+  const list = cache ?? FALLBACK_COUNTRIES;
+  return list.find((c) => c.code === code.toUpperCase())?.name ?? code;
 }
