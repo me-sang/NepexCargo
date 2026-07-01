@@ -5,9 +5,10 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-// ponytail: single hardcoded courier logo for every rate row.
-// Swap when backend returns per-rate carrier branding.
+// ponytail: single hardcoded courier logo + fixed delivery ETA for every row.
+// Swap both when backend returns per-rate carrier + transit-time.
 const COURIER_LOGO = "/images/emx-logo.jpg";
+const DELIVERY_ETA = "1 - 2 Business days";
 
 type Rate = {
   rateCardId: string;
@@ -101,8 +102,8 @@ export function RateResultsSection() {
   if (!from || !to || !weight || !unit) return null;
 
   return (
-    <section id="quote-results" className="bg-white pt-12 lg:pt-16 pb-16 lg:pb-20">
-      <div className="container-content max-w-[920px]">
+    <section id="quote-results" className="bg-[var(--color-surface)] pt-12 lg:pt-16 pb-16 lg:pb-20">
+      <div className="container-content max-w-[1080px]">
         {loading && <SkeletonState />}
         {!loading && error && <ErrorState message={error} />}
         {!loading && !error && data && <Results data={data} />}
@@ -162,23 +163,14 @@ function Results({ data }: { data: CheckRatesData }) {
     );
   }
 
-  // Shared horizontal scale across all band-graphs, so cards compare on the same axis.
-  const scaleMax = computeScaleMax(data.rates, data.inputWeight);
-  const priced = data.rates.filter((r) => r.tier !== null);
-  const cheapest = priced.reduce<Rate | null>(
-    (best, r) =>
-      r.tier && (!best?.tier || r.tier.total < best.tier.total) ? r : best,
-    null,
-  );
-
   return (
     <>
-      <RouteHeader data={data} cheapest={cheapest} />
+      <RouteHeader data={data} />
 
       <ol className="mt-5 space-y-3">
         {data.rates.map((rate) => (
           <li key={rate.rateCardId}>
-            <RateCard rate={rate} scaleMax={scaleMax} />
+            <RateRow rate={rate} />
           </li>
         ))}
       </ol>
@@ -197,62 +189,32 @@ function Results({ data }: { data: CheckRatesData }) {
   );
 }
 
-function RouteHeader({
-  data,
-  cheapest,
-}: {
-  data: CheckRatesData;
-  cheapest: Rate | null;
-}) {
+function RouteHeader({ data }: { data: CheckRatesData }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--color-border)] pb-5">
-      <div className="min-w-0">
-        <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-text-body)]/65">
-          Rates for
-        </p>
-        <h2 className="mt-1 text-[1.5rem] lg:text-[1.75rem] font-extrabold text-[var(--color-text)] leading-tight">
-          <span>{data.sourceCountry}</span>
-          <span className="mx-2 text-[var(--color-accent)]">→</span>
-          <span>{data.destinationZone?.name}</span>
-        </h2>
-        <p className="mt-1 text-[13px] text-[var(--color-text-body)]/80">
-          {data.inputWeight} {data.inputWeightUnit} ·{" "}
-          {data.rates.length} rate{data.rates.length === 1 ? "" : "s"}
-        </p>
-      </div>
-
-      {cheapest?.tier && (
-        <div className="text-right">
-          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-text-body)]/65">
-            Cheapest
-          </p>
-          <p
-            className="mt-1 text-[1.5rem] font-extrabold text-[var(--color-text)] leading-none"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            {cheapest.currency}{" "}
-            {formatMoney(cheapest.tier.total)}
-          </p>
-          <p className="mt-1 text-[12px] text-[var(--color-text-body)]/75">
-            via {cheapest.name ?? "Unnamed rate"}
-          </p>
-        </div>
-      )}
+    <header className="pb-2">
+      <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-text-body)]/65">
+        Rates for
+      </p>
+      <h2 className="mt-1 text-[1.5rem] lg:text-[1.75rem] font-extrabold text-[var(--color-text)] leading-tight">
+        <span>{data.sourceCountry}</span>
+        <span className="mx-2 text-[var(--color-accent)]">→</span>
+        <span>{data.destinationZone?.name}</span>
+      </h2>
+      <p className="mt-1 text-[13px] text-[var(--color-text-body)]/80">
+        {data.inputWeight} {data.inputWeightUnit} · {data.rates.length} rate
+        {data.rates.length === 1 ? "" : "s"}
+      </p>
     </header>
   );
 }
 
-function RateCard({ rate, scaleMax }: { rate: Rate; scaleMax: number }) {
+function RateRow({ rate }: { rate: Rate }) {
   const outOfRange = rate.tier === null;
 
   return (
-    <article
-      className={`rounded-[var(--radius-lg)] border bg-white px-5 py-5 lg:px-6 lg:py-6 transition-shadow border-[var(--color-border)] ${
-        outOfRange ? "" : "hover:shadow-[var(--shadow-card-lg)]"
-      }`}
-    >
-      <div className="flex items-start gap-4 lg:gap-5">
-        {/* Courier logo tile */}
+    <article className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white px-4 py-4 lg:px-6 lg:py-5">
+      <div className="flex flex-wrap items-center gap-4 lg:gap-6">
+        {/* Logo */}
         <div className="relative shrink-0 h-14 w-14 lg:h-16 lg:w-16 rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)]">
           <Image
             src={COURIER_LOGO}
@@ -263,101 +225,72 @@ function RateCard({ rate, scaleMax }: { rate: Rate; scaleMax: number }) {
           />
         </div>
 
-        <div className="min-w-0 flex-1 flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h3 className="text-[1.375rem] lg:text-[1.5rem] font-extrabold text-[var(--color-accent)] leading-none tracking-[-0.02em]">
-              {rate.name ?? "Unnamed rate"}
-            </h3>
-            <p className="mt-2 text-[13px] text-[var(--color-text-body)]/80">
-              {rate.chargeableWeight.toFixed(2)} {rate.weightUnit} chargeable
-              {rate.tier && (
-                <>
-                  {" "}· bracket{" "}
-                  <span className="text-[var(--color-text)] font-semibold">
-                    {formatRange(rate.tier.minWeight, rate.tier.maxWeight)}{" "}
-                    {rate.weightUnit}
-                  </span>
-                </>
-              )}
-            </p>
-          </div>
+        {/* Name */}
+        <div className="min-w-[140px]">
+          <h3 className="text-[1rem] lg:text-[1.0625rem] font-extrabold text-[var(--color-text)] leading-tight">
+            EMX {rate.name ?? "Rate"}
+          </h3>
+          <p className="mt-1 text-[12px] text-[var(--color-text-body)]/75">
+            {rate.chargeableWeight.toFixed(2)} {rate.weightUnit} chargeable
+          </p>
+        </div>
 
-          <div className="text-right shrink-0">
+        {/* Delivery ETA */}
+        <div className="min-w-[150px]">
+          <p className="text-[14px] font-semibold text-[var(--color-text)]">
+            {DELIVERY_ETA}
+          </p>
+          <p className="mt-1 text-[12px] text-[var(--color-text-body)]/70">
+            Estimated delivery
+          </p>
+        </div>
+
+        {/* Price + CTA (pushed right) */}
+        <div className="ml-auto flex items-center gap-4 lg:gap-6">
+          <div className="text-right">
             {outOfRange ? (
               <>
-                <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-text-body)]/65">
+                <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-alert)]">
                   Out of range
                 </p>
-                <p
-                  className="mt-1 text-[14px] text-[var(--color-text)] max-w-[260px] ml-auto"
-                  role="status"
-                >
-                  Heaviest band on this card ends below your weight.
+                <p className="mt-1 text-[12px] text-[var(--color-text-body)]/75 max-w-[200px]">
+                  Weight exceeds this rate&apos;s bracket.
                 </p>
               </>
             ) : (
-              <>
-                <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[var(--color-text-body)]/65">
-                  {rate.currency}
-                </p>
-                <p
-                  className="mt-1 text-[1.625rem] lg:text-[1.875rem] font-extrabold text-[var(--color-text)] leading-none"
-                  style={{ fontVariantNumeric: "tabular-nums" }}
-                >
-                  {formatMoney(rate.tier!.total)}
-                </p>
-              </>
+              <p
+                className="text-[1.125rem] lg:text-[1.25rem] font-extrabold text-[var(--color-text)] leading-none"
+                style={{ fontVariantNumeric: "tabular-nums" }}
+              >
+                {rate.currency} {formatMoney(rate.tier!.total)}
+              </p>
             )}
           </div>
+
+          <button
+            type="button"
+            disabled={outOfRange}
+            className="inline-flex items-center gap-2 h-10 lg:h-11 px-4 lg:px-5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-white text-[13px] lg:text-[14px] font-semibold hover:bg-[var(--color-accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            Book Now
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
+            </svg>
+          </button>
         </div>
       </div>
-
-      <BandGraph rate={rate} scaleMax={scaleMax} />
     </article>
-  );
-}
-
-function BandGraph({ rate, scaleMax }: { rate: Rate; scaleMax: number }) {
-  const dotPct = Math.min((rate.chargeableWeight / scaleMax) * 100, 100);
-
-  const bandLeftPct = rate.tier
-    ? (rate.tier.minWeight / scaleMax) * 100
-    : null;
-  const bandWidthPct = rate.tier
-    ? (((rate.tier.maxWeight ?? scaleMax) - rate.tier.minWeight) / scaleMax) *
-      100
-    : null;
-
-  return (
-    <div className="mt-5">
-      <div className="relative h-4 w-full" role="img" aria-label="Weight band">
-        {/* Track */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-[2px] bg-[var(--color-border)] rounded-full" />
-        {/* Active band */}
-        {bandLeftPct !== null && bandWidthPct !== null && (
-          <div
-            className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-[var(--color-accent)] rounded-full"
-            style={{ left: `${bandLeftPct}%`, width: `${bandWidthPct}%` }}
-          />
-        )}
-        {/* Chargeable-weight dot */}
-        <span
-          aria-hidden="true"
-          className={`absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 ${
-            rate.tier
-              ? "bg-[var(--color-ink)] border-white"
-              : "bg-[var(--color-alert)] border-white"
-          }`}
-          style={{ left: `calc(${dotPct}% - 6px)` }}
-        />
-      </div>
-      <div className="mt-2 flex justify-between text-[11px] font-medium text-[var(--color-text-body)]/55">
-        <span>0 {rate.weightUnit}</span>
-        <span>
-          {formatNumber(scaleMax)} {rate.weightUnit}
-        </span>
-      </div>
-    </div>
   );
 }
 
@@ -372,9 +305,9 @@ function Panel({ children }: { children: React.ReactNode }) {
 function SkeletonState() {
   return (
     <div className="space-y-3">
-      <div className="h-8 w-1/2 rounded bg-[var(--color-surface)] animate-pulse" />
-      <div className="h-24 rounded-[var(--radius-lg)] bg-[var(--color-surface)] animate-pulse" />
-      <div className="h-24 rounded-[var(--radius-lg)] bg-[var(--color-surface)] animate-pulse" />
+      <div className="h-8 w-1/2 rounded bg-white animate-pulse" />
+      <div className="h-20 rounded-[var(--radius-lg)] bg-white animate-pulse" />
+      <div className="h-20 rounded-[var(--radius-lg)] bg-white animate-pulse" />
     </div>
   );
 }
@@ -391,29 +324,6 @@ function ErrorState({ message }: { message: string }) {
       </p>
     </Panel>
   );
-}
-
-function computeScaleMax(rates: Rate[], inputWeight: number): number {
-  const candidates: number[] = [inputWeight];
-  for (const r of rates) {
-    candidates.push(r.chargeableWeight);
-    if (r.tier) {
-      candidates.push(r.tier.minWeight);
-      if (r.tier.maxWeight !== null) candidates.push(r.tier.maxWeight);
-    }
-  }
-  const max = Math.max(...candidates, 1);
-  return max * 1.15;
-}
-
-function formatRange(min: number, max: number | null): string {
-  const minStr = formatNumber(min);
-  if (max === null) return `${minStr}+`;
-  return `${minStr}–${formatNumber(max)}`;
-}
-
-function formatNumber(n: number): string {
-  return n % 1 === 0 ? n.toString() : n.toFixed(2).replace(/\.?0+$/, "");
 }
 
 function formatMoney(n: number): string {
