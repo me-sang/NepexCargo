@@ -46,19 +46,63 @@ export type CreateBookingBody = {
   rateCardId?: string;
 };
 
+export type BookingStatus =
+  | "draft"
+  | "confirmed"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "returned"
+  | "cancelled";
+
+export const BOOKING_STATUSES: BookingStatus[] = [
+  "draft",
+  "confirmed",
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+  "returned",
+  "cancelled",
+];
+
+export function canCancelBooking(status: BookingStatus): boolean {
+  return status === "draft" || status === "confirmed";
+}
+
 export type Booking = {
   id: string;
   airwayBillNumber: string;
-  status: string;
+  source?: string;
+  rateCardId?: string | null;
+  integrationId?: string | null;
+  sender?: ContactAddress;
+  receiver?: ContactAddress;
+  shipmentDetails?: ShipmentItem[];
+  protectionType?: "free" | "opt_out" | "insured";
+  protectionValue?: number | null;
+  status: BookingStatus;
+  shippingCost?: number | null;
+  protectionCost?: number;
+  tax?: number;
   total: number | null;
   currency: string;
+  notes?: string | null;
   createdAt: string;
+  updatedAt?: string;
+};
+
+export type PageMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 };
 
 type ApiEnvelope<T> = {
   success: boolean;
   message?: string;
   data?: T;
+  meta?: PageMeta;
   errors?: {
     fieldErrors?: Record<string, string[]>;
     formErrors?: string[];
@@ -184,6 +228,69 @@ export async function createBooking(
         json?.message ??
         `Booking failed (HTTP ${res.status}). Try again.`,
     );
+  }
+  return json.data;
+}
+
+// ── Read/cancel helpers ───────────────────────────────────────────────────────
+
+function bearer(token: string) {
+  return { Authorization: `Bearer ${token}` };
+}
+
+export async function listBookings(
+  {
+    page = 1,
+    limit = 20,
+    status,
+  }: { page?: number; limit?: number; status?: BookingStatus },
+  accessToken: string,
+): Promise<{ items: Booking[]; meta: PageMeta }> {
+  const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (status) qs.set("status", status);
+  const res = await fetch(`${API_URL}/bookings?${qs.toString()}`, {
+    headers: bearer(accessToken),
+    cache: "no-store",
+  });
+  const json = (await res.json().catch(() => null)) as
+    | ApiEnvelope<Booking[]>
+    | null;
+  if (!res.ok || !json?.success || !json.data || !json.meta) {
+    throw new Error(json?.message ?? `Could not load bookings (HTTP ${res.status}).`);
+  }
+  return { items: json.data, meta: json.meta };
+}
+
+export async function getBooking(
+  id: string,
+  accessToken: string,
+): Promise<Booking> {
+  const res = await fetch(`${API_URL}/bookings/${id}`, {
+    headers: bearer(accessToken),
+    cache: "no-store",
+  });
+  const json = (await res.json().catch(() => null)) as
+    | ApiEnvelope<Booking>
+    | null;
+  if (!res.ok || !json?.success || !json.data) {
+    throw new Error(json?.message ?? `Could not load booking (HTTP ${res.status}).`);
+  }
+  return json.data;
+}
+
+export async function cancelBooking(
+  id: string,
+  accessToken: string,
+): Promise<Booking> {
+  const res = await fetch(`${API_URL}/bookings/${id}/cancel`, {
+    method: "POST",
+    headers: bearer(accessToken),
+  });
+  const json = (await res.json().catch(() => null)) as
+    | ApiEnvelope<Booking>
+    | null;
+  if (!res.ok || !json?.success || !json.data) {
+    throw new Error(json?.message ?? `Could not cancel booking (HTTP ${res.status}).`);
   }
   return json.data;
 }
