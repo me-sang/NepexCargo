@@ -14,4 +14,26 @@ export const countryRepository = AppDataSource.getRepository(Country).extend({
   async findAllActive(): Promise<Country[]> {
     return this.find({ where: { isActive: true }, order: { name: 'ASC' } });
   },
+
+  async search(opts: {
+    page: number;
+    limit: number;
+    search?: string;
+    isActive?: boolean;
+  }): Promise<[Country[], number]> {
+    const qb = this.createQueryBuilder('c')
+      .select(['c.id', 'c.name', 'c.iso2'])
+      .orderBy('c.name', 'ASC')
+      .skip((opts.page - 1) * opts.limit)
+      .take(opts.limit);
+
+    if (opts.search) {
+      qb.andWhere('(c.name ILIKE :search OR c.iso2 ILIKE :search)', { search: `%${opts.search}%` });
+    }
+    if (opts.isActive !== undefined) {
+      qb.andWhere('c.isActive = :isActive', { isActive: opts.isActive });
+    }
+
+    return qb.getManyAndCount();
+  },
 });
